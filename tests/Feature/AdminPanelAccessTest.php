@@ -16,6 +16,14 @@ it('redirects guests away from the admin panel', function () {
     $this->get('/admin')->assertRedirect('/admin/login');
 });
 
+it('renders the admin login page with admin-specific branding copy', function () {
+    $this->get('/admin/login')
+        ->assertOk()
+        ->assertSee(config('branding.name'))
+        ->assertSee('Masuk ke Admin Panel')
+        ->assertSee('Secure Admin');
+});
+
 it('allows a super admin to access the admin panel', function () {
     $user = User::factory()->create();
     $user->assignRole(SystemRole::SUPER_ADMIN->value);

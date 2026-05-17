@@ -31,30 +31,30 @@
                          style="background-image: radial-gradient(circle, #ffffff 1px, transparent 1px); background-size: 18px 18px;"></div>
                 </div>
 
-                {{-- Vertically centered content --}}
-                <div class="relative z-10 flex flex-1 flex-col justify-center gap-9 px-8 py-12 lg:px-12 lg:py-16 xl:px-14">
+                {{-- Centered content --}}
+                <div class="relative z-10 flex flex-1 flex-col justify-center gap-8 px-12 py-12 lg:gap-10 lg:px-16 xl:px-20">
 
-                    {{-- Logo (logo-mark has dark bg, blends perfectly on dark panel) --}}
-                    <a href="{{ url('/') }}" class="self-start rounded-2xl focus:outline-none focus:ring-2 focus:ring-white/30">
+                    {{-- Logo --}}
+                    <a href="{{ url('/') }}" class="rounded-2xl focus:outline-none focus:ring-2 focus:ring-white/30">
                         <img
                             src="{{ asset(config('branding.assets.logo_mark', config('branding.logo_mark'))) }}"
                             alt="{{ config('branding.name', config('app.name')) }}"
-                            class="h-14 w-auto object-contain"
+                            class="h-16 w-auto object-contain lg:h-20"
                         >
                     </a>
 
                     {{-- Headline --}}
-                    <div class="space-y-4">
-                        <h1 class="text-3xl font-bold leading-snug text-white lg:text-4xl xl:text-[2.65rem]">
+                    <div class="space-y-3 lg:space-y-4">
+                        <h1 class="text-3xl font-bold leading-snug text-white lg:text-[2.5rem] xl:text-5xl">
                             Performa tim Anda<br>dalam satu <span style="color: #2dd4bf;">pandangan.</span>
                         </h1>
-                        <p class="max-w-[18rem] text-sm leading-7 text-white/60 lg:text-[0.9375rem]">
+                        <p class="max-w-[22rem] text-sm leading-7 text-white/60 lg:text-base">
                             Dari penetapan target hingga penilaian akhir — semua terdokumentasi, transparan, dan bisa ditindaklanjuti.
                         </p>
                     </div>
 
                     {{-- Benefit list --}}
-                    <ul class="space-y-0">
+                    <ul class="w-full space-y-0">
                         @foreach ([
                             ['title' => 'Target yang dipahami semua orang',     'desc' => 'Tidak ada lagi kebingungan soal ekspektasi performa.'],
                             ['title' => 'Penilaian yang adil dan terverifikasi', 'desc' => 'Proses review terdokumentasi, bukan sekadar obrolan.'],
@@ -72,16 +72,16 @@
                                     @endif
                                 </div>
                                 <div class="pb-1">
-                                    <p class="text-sm font-semibold text-white">{{ $benefit['title'] }}</p>
-                                    <p class="mt-0.5 text-xs leading-5 text-white/50">{{ $benefit['desc'] }}</p>
+                                    <p class="text-sm font-semibold text-white lg:text-[0.9375rem]">{{ $benefit['title'] }}</p>
+                                    <p class="mt-0.5 text-xs leading-5 text-white/50 lg:text-[0.8125rem]">{{ $benefit['desc'] }}</p>
                                 </div>
                             </li>
                         @endforeach
                     </ul>
                 </div>
 
-                {{-- Footer pinned to bottom --}}
-                <div class="relative z-10 flex items-center gap-2 px-8 py-5 lg:px-12 xl:px-14">
+                {{-- Footer pinned to bottom, centered --}}
+                <div class="relative z-10 flex items-center gap-2 px-12 py-5 lg:px-16 xl:px-20">
                     <svg class="h-3.5 w-3.5 shrink-0 text-white/30" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z" />
                     </svg>

@@ -27,6 +27,14 @@ If the project name changes, update documentation and UI labels consistently, bu
 - Larastan / PHPStan
 - Vite
 
+## Frontend Build Standard
+
+Before changing frontend, auth UI, Filament admin UI, Tailwind, Vite, PostCSS, or theme wiring, read:
+
+- [docs/frontend-build-standard.md](C:/laragon/www/pulsekpi/docs/frontend-build-standard.md)
+
+Follow that document as the source of truth for whether the project is operating in controlled hybrid mode, Tailwind CSS v3-style app mode, or a future full Tailwind CSS v4 migration.
+
 ## Architecture
 
 Use modular monolith.

@@ -19,7 +19,7 @@
                     </span>
                     <x-text-input
                         id="email"
-                        class="block w-full pl-10"
+                        class="block w-full !pl-10"
                         type="email"
                         name="email"
                         :value="old('email')"
@@ -54,7 +54,7 @@
                     </span>
                     <x-text-input
                         id="password"
-                        class="block w-full pl-10 pr-10"
+                        class="block w-full !pl-10 !pr-10"
                         :type="'password'"
                         name="password"
                         required

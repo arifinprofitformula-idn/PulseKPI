@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Pages\Auth\Login;
 use App\Filament\Pages\KpiDashboard;
 use App\Filament\Widgets\KpiRoleDashboardStatsWidget;
 use Filament\Http\Middleware\Authenticate;
@@ -11,12 +12,15 @@ use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
+use Filament\View\PanelsRenderHook;
 use Filament\Widgets\AccountWidget;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
+use Illuminate\Foundation\Vite;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
+use Illuminate\Support\HtmlString;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 
 class AdminPanelProvider extends PanelProvider
@@ -27,7 +31,7 @@ class AdminPanelProvider extends PanelProvider
             ->default()
             ->id('admin')
             ->path('admin')
-            ->login()
+            ->login(Login::class)
             ->brandName(config('branding.name', config('app.name')))
             ->brandLogo(asset(config('branding.assets.logo_full', config('branding.logo_full'))))
             ->brandLogoHeight('2rem')
@@ -36,7 +40,15 @@ class AdminPanelProvider extends PanelProvider
                 'primary' => Color::hex(config('branding.colors.primary', config('branding.primary_color', '#0F9D8A'))),
                 'gray' => Color::Slate,
             ])
-            ->viteTheme('resources/css/filament/admin/theme.css')
+            ->renderHook(
+                PanelsRenderHook::STYLES_AFTER,
+                fn () => app(Vite::class)('resources/css/filament/admin/theme.css'),
+            )
+            ->renderHook(
+                PanelsRenderHook::SIMPLE_LAYOUT_START,
+                fn (): HtmlString => new HtmlString(view('filament.components.admin-auth-hero')->render()),
+                scopes: Login::class,
+            )
             ->sidebarCollapsibleOnDesktop()
             ->navigationGroups([
                 'Dashboard',
