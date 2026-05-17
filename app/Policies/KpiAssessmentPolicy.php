@@ -11,26 +11,27 @@ use App\Models\User;
 
 class KpiAssessmentPolicy
 {
-    public function before(User $user, string $ability): ?bool
-    {
-        if ($user->hasRole(SystemRole::SUPER_ADMIN->value)) {
-            return true;
-        }
-
-        return null;
-    }
-
     public function viewAny(User $user): bool
     {
-        return $user->hasRole(SystemRole::HRD->value)
+        return $user->hasRole(SystemRole::SUPER_ADMIN->value)
+            || $user->hasRole(SystemRole::HRD->value)
+            || $user->hasRole(SystemRole::APPROVER->value)
             || $user->can(SystemPermission::SUBMIT_KPI_ASSESSMENT->value)
             || $user->hasRole(SystemRole::EMPLOYEE->value);
     }
 
     public function view(User $user, KpiAssessment $assessment): bool
     {
-        if ($user->hasRole(SystemRole::HRD->value)) {
+        if ($user->hasRole(SystemRole::SUPER_ADMIN->value) || $user->hasRole(SystemRole::HRD->value)) {
             return true;
+        }
+
+        if ($user->hasRole(SystemRole::APPROVER->value)) {
+            return in_array($assessment->status, [
+                KpiAssessmentStatus::REVIEWED,
+                KpiAssessmentStatus::APPROVED,
+                KpiAssessmentStatus::LOCKED,
+            ], true);
         }
 
         if ($user->isManager()) {
@@ -72,6 +73,10 @@ class KpiAssessmentPolicy
             return false;
         }
 
+        if ($user->hasRole(SystemRole::SUPER_ADMIN->value)) {
+            return true;
+        }
+
         if ($user->isManager()) {
             return $assessment->employee !== null
                 && ! $user->is($assessment->employee)
@@ -83,14 +88,61 @@ class KpiAssessmentPolicy
 
     public function submit(User $user, KpiAssessment $assessment): bool
     {
-        if (! in_array($assessment->status, [
-            KpiAssessmentStatus::DRAFT,
-            KpiAssessmentStatus::REJECTED,
-        ], true)) {
+        if (! $assessment->isEditable()) {
             return false;
         }
 
         return $this->update($user, $assessment);
+    }
+
+    public function review(User $user, KpiAssessment $assessment): bool
+    {
+        if ($assessment->status !== KpiAssessmentStatus::SUBMITTED) {
+            return false;
+        }
+
+        return $user->hasRole(SystemRole::SUPER_ADMIN->value)
+            || $user->hasRole(SystemRole::HRD->value);
+    }
+
+    public function approve(User $user, KpiAssessment $assessment): bool
+    {
+        if ($assessment->status !== KpiAssessmentStatus::REVIEWED) {
+            return false;
+        }
+
+        return $user->hasRole(SystemRole::SUPER_ADMIN->value)
+            || $user->hasRole(SystemRole::APPROVER->value);
+    }
+
+    public function reject(User $user, KpiAssessment $assessment): bool
+    {
+        if ($user->hasRole(SystemRole::SUPER_ADMIN->value)) {
+            return in_array($assessment->status, [
+                KpiAssessmentStatus::SUBMITTED,
+                KpiAssessmentStatus::REVIEWED,
+            ], true);
+        }
+
+        if ($user->hasRole(SystemRole::HRD->value)) {
+            return $assessment->status === KpiAssessmentStatus::SUBMITTED;
+        }
+
+        if ($user->hasRole(SystemRole::APPROVER->value)) {
+            return $assessment->status === KpiAssessmentStatus::REVIEWED;
+        }
+
+        return false;
+    }
+
+    public function lock(User $user, KpiAssessment $assessment): bool
+    {
+        if ($assessment->status !== KpiAssessmentStatus::APPROVED) {
+            return false;
+        }
+
+        return $user->hasRole(SystemRole::SUPER_ADMIN->value)
+            || $user->hasRole(SystemRole::APPROVER->value);
     }
 
     public function downloadEvidence(User $user, KpiAssessment $assessment): bool

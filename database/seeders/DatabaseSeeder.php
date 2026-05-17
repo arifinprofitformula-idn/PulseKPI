@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
             $this->call([
                 OrganizationStructureSeeder::class,
                 DemoKpiTemplateSeeder::class,
+                DemoUserSeeder::class,
             ]);
         }
     }

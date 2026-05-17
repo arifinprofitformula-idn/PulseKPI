@@ -24,20 +24,17 @@ return new class extends Migration
                 ->nullable()
                 ->constrained()
                 ->cascadeOnUpdate()
-                ->nullOnDelete()
-                ->index();
+                ->nullOnDelete();
             $table->foreignId('department_id')
                 ->nullable()
                 ->constrained()
                 ->cascadeOnUpdate()
-                ->nullOnDelete()
-                ->index();
+                ->nullOnDelete();
             $table->foreignId('position_id')
                 ->nullable()
                 ->constrained()
                 ->cascadeOnUpdate()
-                ->nullOnDelete()
-                ->index();
+                ->nullOnDelete();
             $table->string('revision')->default('00');
             $table->text('description')->nullable();
             $table->boolean('is_active')->default(true)->index();

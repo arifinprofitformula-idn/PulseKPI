@@ -35,7 +35,7 @@ class UpdateKpiAttendanceAdjustmentAction
 
         if (! $attendance->assessment->isEditable()) {
             throw ValidationException::withMessages([
-                'assessment' => 'Submitted assessments cannot be edited.',
+                'assessment' => 'Only draft or rejected assessments can be edited.',
             ]);
         }
 

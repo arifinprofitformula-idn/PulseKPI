@@ -2,9 +2,17 @@
 
 namespace App\Providers;
 
+use App\Events\KpiAssessmentApproved;
+use App\Events\KpiAssessmentLocked;
+use App\Events\KpiAssessmentRejected;
+use App\Events\KpiAssessmentReviewed;
 use App\Events\KpiAssessmentSubmitted;
 use App\Events\KpiAssigned;
 use App\Events\KpiAssignmentCancelled;
+use App\Listeners\SendKpiAssessmentApprovedNotification;
+use App\Listeners\SendKpiAssessmentLockedNotification;
+use App\Listeners\SendKpiAssessmentRejectedNotification;
+use App\Listeners\SendKpiAssessmentReviewedNotification;
 use App\Listeners\SendKpiAssessmentSubmittedNotification;
 use App\Listeners\SendKpiAssignedNotification;
 use App\Listeners\SendKpiAssignmentCancelledNotification;
@@ -45,5 +53,9 @@ class AppServiceProvider extends ServiceProvider
         Event::listen(KpiAssigned::class, SendKpiAssignedNotification::class);
         Event::listen(KpiAssignmentCancelled::class, SendKpiAssignmentCancelledNotification::class);
         Event::listen(KpiAssessmentSubmitted::class, SendKpiAssessmentSubmittedNotification::class);
+        Event::listen(KpiAssessmentReviewed::class, SendKpiAssessmentReviewedNotification::class);
+        Event::listen(KpiAssessmentApproved::class, SendKpiAssessmentApprovedNotification::class);
+        Event::listen(KpiAssessmentRejected::class, SendKpiAssessmentRejectedNotification::class);
+        Event::listen(KpiAssessmentLocked::class, SendKpiAssessmentLockedNotification::class);
     }
 }

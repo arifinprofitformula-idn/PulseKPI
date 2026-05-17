@@ -21,24 +21,20 @@ return new class extends Migration
             $table->foreignId('kpi_period_id')
                 ->constrained('kpi_periods')
                 ->cascadeOnUpdate()
-                ->cascadeOnDelete()
-                ->index();
+                ->cascadeOnDelete();
             $table->foreignId('kpi_template_id')
                 ->constrained('kpi_templates')
                 ->cascadeOnUpdate()
-                ->restrictOnDelete()
-                ->index();
+                ->restrictOnDelete();
             $table->foreignId('employee_id')
                 ->constrained('users')
                 ->cascadeOnUpdate()
-                ->restrictOnDelete()
-                ->index();
+                ->restrictOnDelete();
             $table->foreignId('assigned_by')
                 ->nullable()
                 ->constrained('users')
                 ->cascadeOnUpdate()
-                ->nullOnDelete()
-                ->index();
+                ->nullOnDelete();
             $table->enum('status', KpiAssignmentStatus::values())->default(KpiAssignmentStatus::DRAFT->value)->index();
             $table->timestamp('assigned_at')->nullable()->index();
             $table->timestamp('cancelled_at')->nullable()->index();

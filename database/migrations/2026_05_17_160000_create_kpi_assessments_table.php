@@ -23,14 +23,12 @@ return new class extends Migration
             $table->foreignId('employee_id')
                 ->constrained('users')
                 ->cascadeOnUpdate()
-                ->restrictOnDelete()
-                ->index();
+                ->restrictOnDelete();
             $table->foreignId('assessor_id')
                 ->nullable()
                 ->constrained('users')
                 ->cascadeOnUpdate()
-                ->nullOnDelete()
-                ->index();
+                ->nullOnDelete();
             $table->enum('status', KpiAssessmentStatus::values())
                 ->default(KpiAssessmentStatus::DRAFT->value)
                 ->index();

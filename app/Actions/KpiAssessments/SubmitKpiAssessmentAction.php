@@ -67,20 +67,28 @@ class SubmitKpiAssessmentAction
 
             $resolvedAssessment->refresh();
 
+            $fromStatus = $resolvedAssessment->status;
+
             $resolvedAssessment->forceFill([
                 'status' => KpiAssessmentStatus::SUBMITTED,
                 'submitted_at' => now(),
+                'reviewed_at' => null,
+                'approved_at' => null,
+                'rejected_at' => null,
+                'locked_at' => null,
             ])->save();
 
             $this->activityLogService->log(
                 'kpi_assessment.submitted',
                 $resolvedAssessment,
                 [
+                    'actor_id' => $authorizer?->getKey(),
                     'assessment_id' => $resolvedAssessment->getKey(),
                     'assignment_id' => $resolvedAssessment->kpi_assignment_id,
                     'employee_id' => $resolvedAssessment->employee_id,
                     'assessor_id' => $resolvedAssessment->assessor_id,
-                    'status' => $resolvedAssessment->status->value,
+                    'from_status' => $fromStatus->value,
+                    'to_status' => $resolvedAssessment->status->value,
                     'kpi_score' => $resolvedAssessment->kpi_score,
                     'attendance_deduction' => $resolvedAssessment->attendance_deduction,
                     'final_score' => $resolvedAssessment->final_score,
@@ -98,6 +106,7 @@ class SubmitKpiAssessmentAction
             'assessor',
             'items.templateItem',
             'attendanceAdjustment',
+            'approvals.actor',
         ]);
 
         event(new KpiAssessmentSubmitted($resolvedAssessment));

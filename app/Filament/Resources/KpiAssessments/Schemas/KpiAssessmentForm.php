@@ -60,6 +60,26 @@ class KpiAssessmentForm
                                 TextInput::make('final_score')
                                     ->label('Final Score')
                                     ->disabled(),
+                                TextInput::make('submitted_at_label')
+                                    ->label('Submitted At')
+                                    ->disabled()
+                                    ->placeholder('-'),
+                                TextInput::make('reviewed_at_label')
+                                    ->label('Reviewed At')
+                                    ->disabled()
+                                    ->placeholder('-'),
+                                TextInput::make('approved_at_label')
+                                    ->label('Approved At')
+                                    ->disabled()
+                                    ->placeholder('-'),
+                                TextInput::make('rejected_at_label')
+                                    ->label('Rejected At')
+                                    ->disabled()
+                                    ->placeholder('-'),
+                                TextInput::make('locked_at_label')
+                                    ->label('Locked At')
+                                    ->disabled()
+                                    ->placeholder('-'),
                             ]),
                     ]),
                 Section::make('KPI Components')
@@ -198,6 +218,40 @@ class KpiAssessmentForm
                             ->label('Assessment Notes')
                             ->rows(3)
                             ->disabled($isReadOnly),
+                    ]),
+                Section::make('Approval History')
+                    ->schema([
+                        Repeater::make('approval_history')
+                            ->label('')
+                            ->addable(false)
+                            ->deletable(false)
+                            ->reorderable(false)
+                            ->collapsible()
+                            ->schema([
+                                Grid::make(2)
+                                    ->schema([
+                                        TextInput::make('action')
+                                            ->label('Action')
+                                            ->disabled(),
+                                        TextInput::make('actor_name')
+                                            ->label('Actor')
+                                            ->disabled(),
+                                        TextInput::make('from_status')
+                                            ->label('From Status')
+                                            ->disabled(),
+                                        TextInput::make('to_status')
+                                            ->label('To Status')
+                                            ->disabled(),
+                                        TextInput::make('acted_at')
+                                            ->label('Acted At')
+                                            ->disabled(),
+                                        Textarea::make('notes')
+                                            ->label('Notes')
+                                            ->rows(2)
+                                            ->disabled()
+                                            ->columnSpanFull(),
+                                    ]),
+                            ]),
                     ]),
             ]);
     }

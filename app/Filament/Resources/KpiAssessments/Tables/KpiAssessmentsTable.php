@@ -37,7 +37,10 @@ class KpiAssessmentsTable
                     ->color(fn (mixed $state): string => match ($state instanceof KpiAssessmentStatus ? $state : KpiAssessmentStatus::from((string) $state)) {
                         KpiAssessmentStatus::DRAFT => 'warning',
                         KpiAssessmentStatus::SUBMITTED => 'success',
+                        KpiAssessmentStatus::REVIEWED => 'info',
+                        KpiAssessmentStatus::APPROVED => 'primary',
                         KpiAssessmentStatus::REJECTED => 'danger',
+                        KpiAssessmentStatus::LOCKED => 'gray',
                     }),
                 TextColumn::make('kpi_score')
                     ->label('KPI Score')

@@ -17,13 +17,11 @@ return new class extends Migration
             $table->foreignId('kpi_assessment_id')
                 ->constrained('kpi_assessments')
                 ->cascadeOnUpdate()
-                ->cascadeOnDelete()
-                ->index();
+                ->cascadeOnDelete();
             $table->foreignId('kpi_template_item_id')
                 ->constrained('kpi_template_items')
                 ->cascadeOnUpdate()
-                ->restrictOnDelete()
-                ->index();
+                ->restrictOnDelete();
             $table->decimal('actual_value', 12, 2)->nullable();
             $table->unsignedTinyInteger('score')->default(0);
             $table->decimal('weighted_score', 8, 2)->default(0);

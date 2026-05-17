@@ -59,6 +59,7 @@ class KpiAssessmentResource extends Resource
                 'assessor',
                 'items.templateItem',
                 'attendanceAdjustment',
+                'approvals.actor',
             ]);
 
         $user = auth()->user();
@@ -67,18 +68,7 @@ class KpiAssessmentResource extends Resource
             return $query->whereRaw('1 = 0');
         }
 
-        if ($user->hasRole(SystemRole::SUPER_ADMIN->value) || $user->hasRole(SystemRole::HRD->value)) {
-            return $query;
-        }
-
-        if ($user->isManager()) {
-            return $query->whereHas(
-                'employee',
-                fn (Builder $builder) => $builder->where('supervisor_id', $user->getKey())
-            );
-        }
-
-        return $query->where('employee_id', $user->getKey());
+        return $query->visibleToUser($user);
     }
 
     public static function getNavigationBadge(): ?string

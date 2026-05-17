@@ -6,14 +6,20 @@ enum KpiAssessmentStatus: string
 {
     case DRAFT = 'draft';
     case SUBMITTED = 'submitted';
+    case REVIEWED = 'reviewed';
+    case APPROVED = 'approved';
     case REJECTED = 'rejected';
+    case LOCKED = 'locked';
 
     public function label(): string
     {
         return match ($this) {
             self::DRAFT => 'Draft',
             self::SUBMITTED => 'Submitted',
+            self::REVIEWED => 'Reviewed',
+            self::APPROVED => 'Approved',
             self::REJECTED => 'Rejected',
+            self::LOCKED => 'Locked',
         };
     }
 

@@ -3,7 +3,9 @@
 namespace App\Models;
 
 use App\Enums\KpiAssessmentStatus;
+use App\Enums\SystemRole;
 use Database\Factories\KpiAssessmentFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -14,6 +16,10 @@ use Illuminate\Support\Carbon;
 /**
  * @property KpiAssessmentStatus $status
  * @property Carbon|null $submitted_at
+ * @property Carbon|null $reviewed_at
+ * @property Carbon|null $approved_at
+ * @property Carbon|null $rejected_at
+ * @property Carbon|null $locked_at
  */
 class KpiAssessment extends Model
 {
@@ -42,6 +48,10 @@ class KpiAssessment extends Model
             'attendance_deduction' => 'decimal:2',
             'final_score' => 'decimal:2',
             'submitted_at' => 'datetime',
+            'reviewed_at' => 'datetime',
+            'approved_at' => 'datetime',
+            'rejected_at' => 'datetime',
+            'locked_at' => 'datetime',
         ];
     }
 
@@ -78,6 +88,14 @@ class KpiAssessment extends Model
     }
 
     /**
+     * @return HasMany<KpiApproval, $this>
+     */
+    public function approvals(): HasMany
+    {
+        return $this->hasMany(KpiApproval::class)->latest('acted_at')->latest('id');
+    }
+
+    /**
      * @return HasOne<KpiAttendanceAdjustment, $this>
      */
     public function attendanceAdjustment(): HasOne
@@ -91,5 +109,33 @@ class KpiAssessment extends Model
             KpiAssessmentStatus::DRAFT,
             KpiAssessmentStatus::REJECTED,
         ], true);
+    }
+
+    /**
+     * @param  Builder<KpiAssessment>  $query
+     * @return Builder<KpiAssessment>
+     */
+    public function scopeVisibleToUser(Builder $query, User $user): Builder
+    {
+        if ($user->hasRole(SystemRole::SUPER_ADMIN->value) || $user->hasRole(SystemRole::HRD->value)) {
+            return $query;
+        }
+
+        if ($user->hasRole(SystemRole::APPROVER->value)) {
+            return $query->whereIn('status', [
+                KpiAssessmentStatus::REVIEWED->value,
+                KpiAssessmentStatus::APPROVED->value,
+                KpiAssessmentStatus::LOCKED->value,
+            ]);
+        }
+
+        if ($user->isManager()) {
+            return $query->whereHas(
+                'employee',
+                fn (Builder $builder) => $builder->where('supervisor_id', $user->getKey())
+            );
+        }
+
+        return $query->where('employee_id', $user->getKey());
     }
 }
