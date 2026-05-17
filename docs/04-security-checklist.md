@@ -1,5 +1,9 @@
 # PulseKPI Security Checklist
 
+> This file lists the security requirements for PulseKPI.
+> For the completed evidence-based review against these requirements, see
+> [docs/10-security-review-report.md](10-security-review-report.md).
+
 ## Authentication
 
 - Login required for all KPI pages.

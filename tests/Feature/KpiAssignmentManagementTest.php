@@ -1,5 +1,6 @@
 <?php
 
+use App\Actions\KpiAssessments\CreateKpiAssessmentAction;
 use App\Actions\KpiAssignments\AssignKpiTemplateAction;
 use App\Actions\KpiAssignments\BulkAssignKpiTemplateAction;
 use App\Actions\KpiAssignments\CancelKpiAssignmentAction;
@@ -492,4 +493,81 @@ it('period without assignments can be deleted by hrd', function () {
 
     $policy = new KpiPeriodPolicy;
     expect($policy->delete($hrd, $period))->toBeTrue();
+});
+
+// ─── Cancellation blocked when assessment exists ──────────────────────────────
+
+it('hrd cannot cancel assignment when an assessment already exists', function () {
+    $hrd = makeUser(SystemRole::HRD->value);
+    $manager = makeUser(SystemRole::MANAGER->value);
+    $employee = makeUser(SystemRole::EMPLOYEE->value);
+    $employee->update(['supervisor_id' => $manager->getKey()]);
+    $period = makeActivePeriod();
+    $template = makePublishedTemplate();
+
+    $assignment = app(AssignKpiTemplateAction::class)->execute($period, $template, $employee, $hrd);
+
+    test()->actingAs($manager);
+    app(CreateKpiAssessmentAction::class)->execute($assignment, $manager);
+
+    expect(fn () => app(CancelKpiAssignmentAction::class)->execute($assignment->fresh(), $hrd))
+        ->toThrow(ValidationException::class);
+});
+
+it('assignment status remains assigned when cancellation is blocked by existing assessment', function () {
+    $hrd = makeUser(SystemRole::HRD->value);
+    $manager = makeUser(SystemRole::MANAGER->value);
+    $employee = makeUser(SystemRole::EMPLOYEE->value);
+    $employee->update(['supervisor_id' => $manager->getKey()]);
+    $period = makeActivePeriod();
+    $template = makePublishedTemplate();
+
+    $assignment = app(AssignKpiTemplateAction::class)->execute($period, $template, $employee, $hrd);
+
+    test()->actingAs($manager);
+    app(CreateKpiAssessmentAction::class)->execute($assignment, $manager);
+
+    try {
+        app(CancelKpiAssignmentAction::class)->execute($assignment->fresh(), $hrd);
+    } catch (ValidationException) {
+    }
+
+    expect($assignment->fresh()->status)->toBe(KpiAssignmentStatus::ASSIGNED);
+});
+
+it('assessment record remains intact when cancellation is blocked', function () {
+    $hrd = makeUser(SystemRole::HRD->value);
+    $manager = makeUser(SystemRole::MANAGER->value);
+    $employee = makeUser(SystemRole::EMPLOYEE->value);
+    $employee->update(['supervisor_id' => $manager->getKey()]);
+    $period = makeActivePeriod();
+    $template = makePublishedTemplate();
+
+    $assignment = app(AssignKpiTemplateAction::class)->execute($period, $template, $employee, $hrd);
+
+    test()->actingAs($manager);
+    $assessment = app(CreateKpiAssessmentAction::class)->execute($assignment, $manager);
+
+    try {
+        app(CancelKpiAssignmentAction::class)->execute($assignment->fresh(), $hrd);
+    } catch (ValidationException) {
+    }
+
+    $this->assertDatabaseHas('kpi_assessments', [
+        'id' => $assessment->getKey(),
+        'kpi_assignment_id' => $assignment->getKey(),
+    ]);
+});
+
+it('hrd can still cancel an assignment that has no assessment', function () {
+    $hrd = makeUser(SystemRole::HRD->value);
+    $employee = makeUser(SystemRole::EMPLOYEE->value);
+    $period = makeActivePeriod();
+    $template = makePublishedTemplate();
+
+    $assignment = app(AssignKpiTemplateAction::class)->execute($period, $template, $employee, $hrd);
+
+    $cancelled = app(CancelKpiAssignmentAction::class)->execute($assignment, $hrd);
+
+    expect($cancelled->status)->toBe(KpiAssignmentStatus::CANCELLED);
 });

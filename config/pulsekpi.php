@@ -17,7 +17,7 @@ return [
     'super_admin' => [
         'name' => env('SUPER_ADMIN_NAME', 'PulseKPI Super Admin'),
         'email' => env('SUPER_ADMIN_EMAIL', 'admin@pulsekpi.test'),
-        'password' => env('SUPER_ADMIN_PASSWORD', 'ChangeMe123!'),
+        'password' => env('SUPER_ADMIN_PASSWORD'),
     ],
 
     'assessments' => [

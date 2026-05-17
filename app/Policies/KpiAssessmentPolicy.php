@@ -167,7 +167,7 @@ class KpiAssessmentPolicy
 
     public function downloadEvidence(User $user, KpiAssessment $assessment): bool
     {
-        if ($user->hasRole(SystemRole::HRD->value)) {
+        if ($user->hasRole(SystemRole::SUPER_ADMIN->value) || $user->hasRole(SystemRole::HRD->value)) {
             return true;
         }
 

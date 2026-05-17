@@ -550,6 +550,56 @@ it('evidence download is authorized for manager owner and denied to unauthorized
     get(route('kpi-assessment-items.evidence.download', ['item' => $item]))->assertOk();
 });
 
+it('super admin can download evidence for any assessment', function () {
+    Storage::fake(config('pulsekpi.assessments.evidence_disk', 'local'));
+
+    $superAdmin = makeAssessmentUser(SystemRole::SUPER_ADMIN->value);
+    $manager = makeAssessmentUser(SystemRole::MANAGER->value);
+    $employee = makeAssessmentUser(SystemRole::EMPLOYEE->value);
+    $employee->update(['supervisor_id' => $manager->getKey()]);
+    $assignment = makeAssessmentAssignment($employee);
+
+    actingAs($manager);
+    $assessment = app(CreateKpiAssessmentAction::class)->execute($assignment, $manager);
+    $item = $assessment->items()->firstOrFail();
+
+    app(UpdateKpiAssessmentItemAction::class)->execute($item, [
+        'item_id' => $item->getKey(),
+        'score' => 2,
+        'evidence_file' => UploadedFile::fake()->create('evidence.pdf', 100, 'application/pdf'),
+    ], $manager);
+
+    $item->refresh();
+
+    actingAs($superAdmin);
+    get(route('kpi-assessment-items.evidence.download', ['item' => $item]))->assertOk();
+});
+
+it('unrelated employee cannot download another employee evidence', function () {
+    Storage::fake(config('pulsekpi.assessments.evidence_disk', 'local'));
+
+    $manager = makeAssessmentUser(SystemRole::MANAGER->value);
+    $employee = makeAssessmentUser(SystemRole::EMPLOYEE->value);
+    $unrelated = makeAssessmentUser(SystemRole::EMPLOYEE->value);
+    $employee->update(['supervisor_id' => $manager->getKey()]);
+    $assignment = makeAssessmentAssignment($employee);
+
+    actingAs($manager);
+    $assessment = app(CreateKpiAssessmentAction::class)->execute($assignment, $manager);
+    $item = $assessment->items()->firstOrFail();
+
+    app(UpdateKpiAssessmentItemAction::class)->execute($item, [
+        'item_id' => $item->getKey(),
+        'score' => 2,
+        'evidence_file' => UploadedFile::fake()->create('secret.pdf', 100, 'application/pdf'),
+    ], $manager);
+
+    $item->refresh();
+
+    actingAs($unrelated);
+    get(route('kpi-assessment-items.evidence.download', ['item' => $item]))->assertForbidden();
+});
+
 it('replacing evidence deletes the old private file', function () {
     Storage::fake(config('pulsekpi.assessments.evidence_disk', 'local'));
 

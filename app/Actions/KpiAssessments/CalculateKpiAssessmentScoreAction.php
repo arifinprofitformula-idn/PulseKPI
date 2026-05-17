@@ -11,6 +11,10 @@ class CalculateKpiAssessmentScoreAction
 {
     public function execute(KpiAssessment $assessment): KpiAssessment
     {
+        if (! $assessment->isEditable()) {
+            return $assessment;
+        }
+
         $assessment->load([
             'items.templateItem',
             'attendanceAdjustment',

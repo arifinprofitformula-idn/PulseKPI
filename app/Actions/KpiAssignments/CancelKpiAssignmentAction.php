@@ -35,7 +35,11 @@ class CancelKpiAssignmentAction
             ]);
         }
 
-        // TODO (Phase 4): prevent cancellation when an assessment already exists for this assignment.
+        if ($assignment->assessment()->exists()) {
+            throw ValidationException::withMessages([
+                'assignment' => 'This KPI assignment cannot be cancelled because an assessment already exists for it.',
+            ]);
+        }
 
         $cancelledAt = now();
 
