@@ -1,0 +1,30 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(package.json)",
+      "Read(vite.config.js)",
+      "Read(postcss.config.js)",
+      "Read(tailwind.config.js)",
+      "Read(resources/css/app.css)",
+      "Read(resources/css/filament/admin/theme.css)",
+      "Read(app/Providers/Filament/AdminPanelProvider.php)",
+      "Read(docs/frontend-build-standard.md)",
+      "Bash(git status)",
+      "Bash(git diff --stat)",
+      "Bash(npm run build)",
+      "Bash(composer pint)"
+    ],
+    "deny": [
+      "Read(node_modules/**)",
+      "Read(vendor/**)",
+      "Read(storage/**)",
+      "Read(public/build/**)",
+      "Read(bootstrap/cache/**)",
+      "Edit(app/Policies/**)",
+      "Edit(database/migrations/**)",
+      "Edit(app/Models/**)",
+      "Edit(app/Http/**)",
+      "Edit(routes/**)"
+    ]
+  }
+}
