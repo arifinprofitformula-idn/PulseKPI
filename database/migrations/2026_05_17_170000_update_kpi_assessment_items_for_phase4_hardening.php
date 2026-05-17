@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -21,6 +22,10 @@ return new class extends Migration
 
     public function down(): void
     {
+        DB::table('kpi_assessment_items')
+            ->whereNull('score')
+            ->update(['score' => 0]);
+
         Schema::table('kpi_assessment_items', function (Blueprint $table) {
             $table->unsignedTinyInteger('score')->default(0)->change();
             $table->dropColumn([
