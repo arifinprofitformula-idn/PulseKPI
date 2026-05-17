@@ -442,7 +442,7 @@ it('dashboard widget loads for hrd users', function () {
 
     $this->get('/admin')
         ->assertOk()
-    ->assertSee('Dashboard');
+        ->assertSee('Dashboard');
 });
 
 it('template resources require authentication', function () {

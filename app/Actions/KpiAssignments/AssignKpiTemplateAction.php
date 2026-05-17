@@ -9,7 +9,6 @@ use App\Models\KpiPeriod;
 use App\Models\KpiTemplate;
 use App\Models\User;
 use App\Services\Audit\ActivityLogService;
-use Carbon\Carbon;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -55,12 +54,12 @@ class AssignKpiTemplateAction
                     'template_id' => $assignment->kpi_template_id,
                     'employee_id' => $assignment->employee_id,
                     'assigned_by' => $assignment->assigned_by,
-                    'status' => $this->normalizeStatus($assignment)->value,
+                    'status' => $assignment->status->value,
                 ];
 
                 $this->activityLogService->log('kpi_assignment.created', $assignment, $properties);
                 $this->activityLogService->log('kpi_assignment.assigned', $assignment, $properties + [
-                    'assigned_at' => $this->normalizeTimestamp($assignment->assigned_at),
+                    'assigned_at' => $assignment->assigned_at?->toIso8601String(),
                 ]);
 
                 return $assignment;
@@ -76,21 +75,5 @@ class AssignKpiTemplateAction
         event(new KpiAssigned($assignment));
 
         return $assignment;
-    }
-
-    private function normalizeStatus(KpiAssignment $assignment): KpiAssignmentStatus
-    {
-        $status = $assignment->status;
-
-        if ($status instanceof KpiAssignmentStatus) {
-            return $status;
-        }
-
-        return KpiAssignmentStatus::from($status);
-    }
-
-    private function normalizeTimestamp(mixed $value): ?string
-    {
-        return filled($value) ? Carbon::parse($value)->toIso8601String() : null;
     }
 }

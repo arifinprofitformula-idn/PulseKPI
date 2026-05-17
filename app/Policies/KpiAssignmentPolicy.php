@@ -33,7 +33,7 @@ class KpiAssignmentPolicy
         }
 
         if ($user->isManager()) {
-            return $user->manages($assignment->employee);
+            return $assignment->employee !== null && $user->manages($assignment->employee);
         }
 
         return $user->is($assignment->employee);
@@ -47,7 +47,7 @@ class KpiAssignmentPolicy
     public function update(User $user, KpiAssignment $assignment): bool
     {
         return $user->can(SystemPermission::ASSIGN_KPI->value)
-            && $this->status($assignment) !== KpiAssignmentStatus::CANCELLED;
+            && $assignment->status !== KpiAssignmentStatus::CANCELLED;
     }
 
     public function delete(User $user, KpiAssignment $assignment): bool
@@ -68,22 +68,11 @@ class KpiAssignmentPolicy
     public function cancel(User $user, KpiAssignment $assignment): bool
     {
         return $user->can(SystemPermission::ASSIGN_KPI->value)
-            && $this->status($assignment) !== KpiAssignmentStatus::CANCELLED;
+            && $assignment->status !== KpiAssignmentStatus::CANCELLED;
     }
 
     public function bulkAssign(User $user): bool
     {
         return $user->can(SystemPermission::ASSIGN_KPI->value);
-    }
-
-    private function status(KpiAssignment $assignment): KpiAssignmentStatus
-    {
-        $status = $assignment->status;
-
-        if ($status instanceof KpiAssignmentStatus) {
-            return $status;
-        }
-
-        return KpiAssignmentStatus::from($status);
     }
 }

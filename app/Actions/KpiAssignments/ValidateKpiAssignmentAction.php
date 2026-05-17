@@ -69,7 +69,7 @@ class ValidateKpiAssignmentAction
             $errors['employee_id'] = 'The selected employee already has an assignment for this period.';
         }
 
-        if ($ignore !== null && $this->normalizeAssignmentStatus($ignore) === KpiAssignmentStatus::CANCELLED) {
+        if ($ignore !== null && $ignore->status === KpiAssignmentStatus::CANCELLED) {
             $errors['status'] = 'Cancelled KPI assignments cannot be edited.';
         }
 
@@ -130,7 +130,7 @@ class ValidateKpiAssignmentAction
             $errors['kpi_period_id'] = 'The selected KPI period must be active.';
         }
 
-        if ($this->normalizePeriodType($period) === KpiPeriodType::MONTHLY && $period->month === null) {
+        if ($period->type === KpiPeriodType::MONTHLY && $period->month === null) {
             $errors['kpi_period_id'] = 'The selected monthly KPI period is invalid.';
         }
 
@@ -143,27 +143,5 @@ class ValidateKpiAssignmentAction
         }
 
         return $errors;
-    }
-
-    private function normalizeAssignmentStatus(KpiAssignment $assignment): KpiAssignmentStatus
-    {
-        $status = $assignment->status;
-
-        if ($status instanceof KpiAssignmentStatus) {
-            return $status;
-        }
-
-        return KpiAssignmentStatus::from($status);
-    }
-
-    private function normalizePeriodType(KpiPeriod $period): KpiPeriodType
-    {
-        $type = $period->type;
-
-        if ($type instanceof KpiPeriodType) {
-            return $type;
-        }
-
-        return KpiPeriodType::from($type);
     }
 }
