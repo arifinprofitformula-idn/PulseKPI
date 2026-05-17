@@ -27,21 +27,16 @@ use App\Observers\KpiTemplateItemObserver;
 use App\Observers\KpiTemplateObserver;
 use App\Observers\UserObserver;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
-    /**
-     * Register any application services.
-     */
     public function register(): void
     {
         //
     }
 
-    /**
-     * Bootstrap any application services.
-     */
     public function boot(): void
     {
         User::observe(UserObserver::class);
@@ -57,5 +52,7 @@ class AppServiceProvider extends ServiceProvider
         Event::listen(KpiAssessmentApproved::class, SendKpiAssessmentApprovedNotification::class);
         Event::listen(KpiAssessmentRejected::class, SendKpiAssessmentRejectedNotification::class);
         Event::listen(KpiAssessmentLocked::class, SendKpiAssessmentLockedNotification::class);
+
+        View::share('branding', config('branding'));
     }
 }

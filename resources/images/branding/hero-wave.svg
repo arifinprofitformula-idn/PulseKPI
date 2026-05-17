@@ -1,0 +1,23 @@
+<svg width="1440" height="960" viewBox="0 0 1440 960" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <rect width="1440" height="960" rx="48" fill="url(#hero-gradient)"/>
+    <g opacity="0.24">
+        <path d="M0 730C102 682 204 634 306 636C408 638 510 690 612 679C714 668 816 594 918 586C1020 578 1122 636 1224 650C1326 664 1428 634 1440 630V960H0V730Z" fill="white"/>
+        <path d="M0 794C88 836 176 878 264 874C352 870 440 820 528 814C616 808 704 846 792 840C880 834 968 784 1056 768C1144 752 1232 770 1320 786C1364 794 1408 802 1440 804V960H0V794Z" fill="white"/>
+    </g>
+    <g opacity="0.18" filter="url(#blur)">
+        <circle cx="1185" cy="172" r="170" fill="white"/>
+        <circle cx="265" cy="214" r="126" fill="#9AE6D8"/>
+    </g>
+    <defs>
+        <linearGradient id="hero-gradient" x1="122.5" y1="43.5" x2="1261" y2="923.5" gradientUnits="userSpaceOnUse">
+            <stop stop-color="#0F9D8A"/>
+            <stop offset="0.46" stop-color="#12738A"/>
+            <stop offset="1" stop-color="#1E4D8C"/>
+        </linearGradient>
+        <filter id="blur" x="-21" y="-114" width="1546" height="572" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+            <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+            <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+            <feGaussianBlur stdDeviation="80" result="effect1_foregroundBlur"/>
+        </filter>
+    </defs>
+</svg>

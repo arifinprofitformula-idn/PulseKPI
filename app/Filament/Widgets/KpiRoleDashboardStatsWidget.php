@@ -11,7 +11,7 @@ use Filament\Widgets\StatsOverviewWidget\Stat;
 
 class KpiRoleDashboardStatsWidget extends StatsOverviewWidget
 {
-    protected ?string $heading = 'KPI Dashboard';
+    protected ?string $heading = 'KPI Overview';
 
     protected ?string $description = 'Role-scoped KPI progress and approval insights.';
 
@@ -43,29 +43,80 @@ class KpiRoleDashboardStatsWidget extends StatsOverviewWidget
 
         if ($user->hasRole(SystemRole::APPROVER->value)) {
             return [
-                Stat::make('Reviewed Assessments', $stats['reviewed_assessments'])->color('info'),
-                Stat::make('Approved Assessments', $stats['approved_assessments'])->color('primary'),
-                Stat::make('Locked Assessments', $stats['locked_assessments'])->color('gray'),
-                Stat::make('Pending Approver Approval', $stats['pending_approver_approval'])->color('warning'),
-                Stat::make('Average Final Score', number_format((float) $stats['average_final_score'], 2))->color('success'),
-                Stat::make('Grade Distribution', $gradeSummary === '' ? '-' : $gradeSummary)->color('secondary'),
+                Stat::make('Reviewed', $stats['reviewed_assessments'])
+                    ->description('Assessment telah direview')
+                    ->descriptionIcon('heroicon-m-eye')
+                    ->color('info'),
+                Stat::make('Approved', $stats['approved_assessments'])
+                    ->description('Assessment disetujui')
+                    ->descriptionIcon('heroicon-m-check-circle')
+                    ->color('success'),
+                Stat::make('Locked', $stats['locked_assessments'])
+                    ->description('Assessment terkunci')
+                    ->descriptionIcon('heroicon-m-lock-closed')
+                    ->color('gray'),
+                Stat::make('Pending Approval', $stats['pending_approver_approval'])
+                    ->description('Menunggu persetujuan Anda')
+                    ->descriptionIcon('heroicon-m-clock')
+                    ->color('warning'),
+                Stat::make('Avg Final Score', number_format((float) $stats['average_final_score'], 2))
+                    ->description('Rata-rata skor akhir')
+                    ->descriptionIcon('heroicon-m-chart-bar')
+                    ->color('primary'),
+                Stat::make('Grade Distribution', $gradeSummary === '' ? '—' : $gradeSummary)
+                    ->description('Distribusi grade keseluruhan')
+                    ->descriptionIcon('heroicon-m-academic-cap')
+                    ->color('secondary'),
             ];
         }
 
         $assignmentLabel = $user->hasRole(SystemRole::MANAGER->value) ? 'Team KPI' : 'Total Assignments';
 
         return [
-            Stat::make($assignmentLabel, $stats['total_assignments'])->color('primary'),
-            Stat::make('Total Assessments', $stats['total_assessments'])->color('secondary'),
-            Stat::make('Draft Assessments', $stats['draft_assessments'])->color('warning'),
-            Stat::make('Submitted Assessments', $stats['submitted_assessments'])->color('success'),
-            Stat::make('Reviewed Assessments', $stats['reviewed_assessments'])->color('info'),
-            Stat::make('Approved Assessments', $stats['approved_assessments'])->color('primary'),
-            Stat::make('Locked Assessments', $stats['locked_assessments'])->color('gray'),
-            Stat::make('Rejected Assessments', $stats['rejected_assessments'])->color('danger'),
-            Stat::make('Pending HRD Review', $stats['pending_hrd_review'])->color('warning'),
-            Stat::make('Average Final Score', number_format((float) $stats['average_final_score'], 2))->color('success'),
-            Stat::make('Grade Distribution', $gradeSummary === '' ? '-' : $gradeSummary)->color('secondary'),
+            Stat::make($assignmentLabel, $stats['total_assignments'])
+                ->description('KPI assignment aktif')
+                ->descriptionIcon('heroicon-m-clipboard-document-list')
+                ->color('primary'),
+            Stat::make('Total Assessments', $stats['total_assessments'])
+                ->description('Seluruh assessment')
+                ->descriptionIcon('heroicon-m-document-text')
+                ->color('secondary'),
+            Stat::make('Draft', $stats['draft_assessments'])
+                ->description('Belum disubmit')
+                ->descriptionIcon('heroicon-m-pencil-square')
+                ->color('gray'),
+            Stat::make('Submitted', $stats['submitted_assessments'])
+                ->description('Menunggu review')
+                ->descriptionIcon('heroicon-m-paper-airplane')
+                ->color('info'),
+            Stat::make('Reviewed', $stats['reviewed_assessments'])
+                ->description('Sudah direview HRD')
+                ->descriptionIcon('heroicon-m-eye')
+                ->color('warning'),
+            Stat::make('Approved', $stats['approved_assessments'])
+                ->description('Disetujui approver')
+                ->descriptionIcon('heroicon-m-check-circle')
+                ->color('success'),
+            Stat::make('Locked', $stats['locked_assessments'])
+                ->description('Terkunci & final')
+                ->descriptionIcon('heroicon-m-lock-closed')
+                ->color('gray'),
+            Stat::make('Rejected', $stats['rejected_assessments'])
+                ->description('Ditolak, perlu revisi')
+                ->descriptionIcon('heroicon-m-x-circle')
+                ->color('danger'),
+            Stat::make('Pending HRD Review', $stats['pending_hrd_review'])
+                ->description('Antrian review HRD')
+                ->descriptionIcon('heroicon-m-clock')
+                ->color('warning'),
+            Stat::make('Avg Final Score', number_format((float) $stats['average_final_score'], 2))
+                ->description('Rata-rata skor akhir')
+                ->descriptionIcon('heroicon-m-chart-bar')
+                ->color('primary'),
+            Stat::make('Grade Distribution', $gradeSummary === '' ? '—' : $gradeSummary)
+                ->description('Distribusi grade')
+                ->descriptionIcon('heroicon-m-academic-cap')
+                ->color('secondary'),
         ];
     }
 }
