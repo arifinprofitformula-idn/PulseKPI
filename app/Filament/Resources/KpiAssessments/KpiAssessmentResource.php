@@ -51,6 +51,32 @@ class KpiAssessmentResource extends Resource
         ];
     }
 
+    public static function getNavigationGroup(): ?string
+    {
+        $user = auth()->user();
+
+        if ($user instanceof User && ($user->isManager() || $user->hasRole(SystemRole::APPROVER->value))) {
+            return 'Dashboard';
+        }
+
+        return static::$navigationGroup;
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        $user = auth()->user();
+
+        if ($user instanceof User && $user->hasRole(SystemRole::APPROVER->value)) {
+            return 'Approval Queue';
+        }
+
+        if ($user instanceof User && $user->isManager()) {
+            return 'Assessment Queue';
+        }
+
+        return static::$navigationLabel ?? 'Assessment KPI';
+    }
+
     public static function getEloquentQuery(): Builder
     {
         $query = parent::getEloquentQuery()

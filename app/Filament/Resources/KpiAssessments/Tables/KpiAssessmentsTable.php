@@ -3,6 +3,9 @@
 namespace App\Filament\Resources\KpiAssessments\Tables;
 
 use App\Enums\KpiAssessmentStatus;
+use App\Enums\SystemRole;
+use App\Models\User;
+use App\Support\KpiStatusBadge;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
@@ -12,6 +15,21 @@ class KpiAssessmentsTable
 {
     public static function configure(Table $table): Table
     {
+        /** @var User|null $user */
+        $user = auth()->user();
+
+        $emptyStateHeading = match (true) {
+            $user instanceof User && $user->hasRole(SystemRole::APPROVER->value) => 'No approval items are available',
+            $user instanceof User && $user->isManager() => 'No team assessments are available yet',
+            default => 'No KPI assessments yet',
+        };
+
+        $emptyStateDescription = match (true) {
+            $user instanceof User && $user->hasRole(SystemRole::APPROVER->value) => 'Only reviewed, approved, and locked assessments within your workflow scope will appear here.',
+            $user instanceof User && $user->isManager() => 'Create assessments from assigned KPI records that belong to your direct reports.',
+            default => 'Create assessments from assigned KPI records that are ready for manager review.',
+        };
+
         return $table
             ->columns([
                 TextColumn::make('employee.name')
@@ -33,15 +51,8 @@ class KpiAssessmentsTable
                 TextColumn::make('status')
                     ->label('Status')
                     ->badge()
-                    ->formatStateUsing(fn (mixed $state): string => $state instanceof KpiAssessmentStatus ? $state->label() : KpiAssessmentStatus::from((string) $state)->label())
-                    ->color(fn (mixed $state): string => match ($state instanceof KpiAssessmentStatus ? $state : KpiAssessmentStatus::from((string) $state)) {
-                        KpiAssessmentStatus::DRAFT => 'warning',
-                        KpiAssessmentStatus::SUBMITTED => 'success',
-                        KpiAssessmentStatus::REVIEWED => 'info',
-                        KpiAssessmentStatus::APPROVED => 'primary',
-                        KpiAssessmentStatus::REJECTED => 'danger',
-                        KpiAssessmentStatus::LOCKED => 'gray',
-                    }),
+                    ->formatStateUsing(fn (mixed $state): string => KpiStatusBadge::assessmentLabel($state))
+                    ->color(fn (mixed $state): string => KpiStatusBadge::assessmentColor($state)),
                 TextColumn::make('kpi_score')
                     ->label('KPI Score')
                     ->numeric(decimalPlaces: 2)
@@ -70,8 +81,8 @@ class KpiAssessmentsTable
             ->defaultSort('updated_at', 'desc')
             ->defaultPaginationPageOption(25)
             ->paginated([10, 25, 50])
-            ->emptyStateHeading('No KPI assessments yet')
-            ->emptyStateDescription('Create assessments from assigned KPI records that are ready for manager review.')
+            ->emptyStateHeading($emptyStateHeading)
+            ->emptyStateDescription($emptyStateDescription)
             ->emptyStateIcon('heroicon-o-clipboard-document-list');
     }
 }

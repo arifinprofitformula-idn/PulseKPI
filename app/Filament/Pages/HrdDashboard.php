@@ -46,6 +46,14 @@ class HrdDashboard extends Page
             );
     }
 
+    public static function shouldRegisterNavigation(): bool
+    {
+        $user = auth()->user();
+
+        return $user instanceof User
+            && ($user->hasRole(SystemRole::SUPER_ADMIN->value) || $user->hasRole(SystemRole::HRD->value));
+    }
+
     public function getHeader(): ?View
     {
         /** @var User $user */

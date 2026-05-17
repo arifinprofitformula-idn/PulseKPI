@@ -60,6 +60,14 @@ class KpiReportExportResource extends Resource
             && $user->can('viewAny', KpiReportExport::class);
     }
 
+    public static function shouldRegisterNavigation(): bool
+    {
+        $user = auth()->user();
+
+        return $user instanceof User
+            && ($user->hasRole(SystemRole::SUPER_ADMIN->value) || $user->hasRole(SystemRole::HRD->value));
+    }
+
     public static function getEloquentQuery(): Builder
     {
         $query = parent::getEloquentQuery()->with(['requester', 'assessment.employee']);

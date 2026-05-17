@@ -3,9 +3,9 @@
 namespace App\Filament\Resources\KpiAssessmentReports\Tables;
 
 use App\Actions\Reports\BuildKpiAssessmentReportQuery;
-use App\Enums\KpiAssessmentStatus;
 use App\Filament\Resources\KpiAssessmentReports\KpiAssessmentReportResource;
 use App\Services\Dashboard\KpiDashboardService;
+use App\Support\KpiStatusBadge;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Tables\Columns\TextColumn;
@@ -51,7 +51,8 @@ class KpiAssessmentReportsTable
                 TextColumn::make('status')
                     ->label('Status')
                     ->badge()
-                    ->formatStateUsing(fn (mixed $state): string => $state instanceof KpiAssessmentStatus ? $state->label() : KpiAssessmentStatus::from((string) $state)->label()),
+                    ->formatStateUsing(fn (mixed $state): string => KpiStatusBadge::assessmentLabel($state))
+                    ->color(fn (mixed $state): string => KpiStatusBadge::assessmentColor($state)),
                 TextColumn::make('kpi_score')
                     ->label('KPI Score')
                     ->numeric(decimalPlaces: 2)

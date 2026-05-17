@@ -62,6 +62,32 @@ class KpiAssessmentReportResource extends Resource
             && ($user->hasRole(SystemRole::SUPER_ADMIN->value) || $user->can(SystemPermission::VIEW_REPORTS->value));
     }
 
+    public static function getNavigationGroup(): ?string
+    {
+        $user = auth()->user();
+
+        if ($user instanceof User && ($user->isManager() || $user->hasRole(SystemRole::APPROVER->value))) {
+            return 'Dashboard';
+        }
+
+        return static::$navigationGroup;
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        $user = auth()->user();
+
+        if ($user instanceof User && $user->hasRole(SystemRole::APPROVER->value)) {
+            return 'Approval History';
+        }
+
+        if ($user instanceof User && $user->isManager()) {
+            return 'Assessment History';
+        }
+
+        return static::$navigationLabel ?? 'Laporan KPI';
+    }
+
     public static function canCreate(): bool
     {
         return false;

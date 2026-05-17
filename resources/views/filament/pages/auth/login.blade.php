@@ -13,14 +13,14 @@
                 <svg class="pk-admin-login-card__badge-icon" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" aria-hidden="true">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
                 </svg>
-                Secure
+                Secure Admin
             </span>
         </div>
 
         <div class="pk-admin-login-card__intro">
-            <h1 class="pk-admin-login-card__title">Selamat datang kembali</h1>
+            <h1 class="pk-admin-login-card__title">Masuk ke Admin Panel</h1>
             <p class="pk-admin-login-card__description">
-                Masuk untuk melanjutkan ke workspace Anda.
+                Selamat datang kembali. Masuk untuk melanjutkan ke workspace Anda.
             </p>
         </div>
 

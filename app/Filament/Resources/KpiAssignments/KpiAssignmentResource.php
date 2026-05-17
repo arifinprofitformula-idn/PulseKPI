@@ -11,6 +11,7 @@ use App\Filament\Resources\KpiAssignments\Pages\ViewKpiAssignment;
 use App\Filament\Resources\KpiAssignments\Schemas\KpiAssignmentForm;
 use App\Filament\Resources\KpiAssignments\Tables\KpiAssignmentsTable;
 use App\Models\KpiAssignment;
+use App\Models\User;
 use BackedEnum;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Resources\Resource;
@@ -108,6 +109,24 @@ class KpiAssignmentResource extends Resource
             'create' => CreateKpiAssignment::route('/create'),
             'view' => ViewKpiAssignment::route('/{record}'),
         ];
+    }
+
+    public static function getNavigationGroup(): ?string
+    {
+        $user = auth()->user();
+
+        return $user instanceof User && $user->isManager()
+            ? 'Dashboard'
+            : static::$navigationGroup;
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        $user = auth()->user();
+
+        return $user instanceof User && $user->isManager()
+            ? 'Team KPI'
+            : (static::$navigationLabel ?? 'Assignment KPI');
     }
 
     public static function getEloquentQuery(): Builder
