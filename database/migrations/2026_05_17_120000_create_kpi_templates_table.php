@@ -11,6 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (Schema::hasTable('kpi_templates')) {
+            return;
+        }
+
         Schema::create('kpi_templates', function (Blueprint $table) {
             $table->id();
             $table->string('name');

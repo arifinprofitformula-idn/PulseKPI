@@ -11,13 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (Schema::hasTable('kpi_score_rules')) {
+            return;
+        }
+
         Schema::create('kpi_score_rules', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('kpi_template_item_id')
-                ->constrained()
-                ->cascadeOnUpdate()
-                ->cascadeOnDelete()
-                ->index();
+            $table->unsignedBigInteger('kpi_template_item_id')->index();
             $table->unsignedTinyInteger('score');
             $table->string('label');
             $table->decimal('min_value', 8, 2)->nullable();
@@ -26,6 +26,12 @@ return new class extends Migration
             $table->timestamps();
 
             $table->unique(['kpi_template_item_id', 'score']);
+
+            $table->foreign('kpi_template_item_id', 'fk_kpi_score_rules_template_item')
+                ->references('id')
+                ->on('kpi_template_items')
+                ->cascadeOnUpdate()
+                ->cascadeOnDelete();
         });
     }
 

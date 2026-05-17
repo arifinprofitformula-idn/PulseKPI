@@ -4,11 +4,14 @@ namespace App\Filament\Resources\KpiTemplates\Actions;
 
 use App\Actions\KpiTemplates\DuplicateKpiTemplateAction;
 use App\Actions\KpiTemplates\PublishKpiTemplateAction;
+use App\Filament\Resources\KpiTemplates\KpiTemplateResource;
 use App\Models\KpiTemplate;
 use App\Services\Audit\ActivityLogService;
 use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Forms\Components\TextInput;
+use Filament\Notifications\Notification;
+use Illuminate\Validation\ValidationException;
 
 class KpiTemplatePageActions
 {
@@ -18,10 +21,34 @@ class KpiTemplatePageActions
             ->label('Publish')
             ->color('success')
             ->requiresConfirmation()
+            ->modalHeading('Publish KPI Template')
+            ->modalDescription('Once published, this template cannot be edited. Ensure all KPI components and scoring rules are complete before continuing.')
             ->authorize(fn (KpiTemplate $record): bool => auth()->user()?->can('publish', $record) ?? false)
-            ->action(function (KpiTemplate $record, PublishKpiTemplateAction $action): void {
-                $action->execute($record);
-            });
+            ->action(function (KpiTemplate $record, Action $action): void {
+                try {
+                    app(PublishKpiTemplateAction::class)->execute($record);
+                } catch (ValidationException $e) {
+                    $message = collect($e->errors())->flatten()->first()
+                        ?? 'The template could not be published.';
+
+                    Notification::make()
+                        ->title('Publish failed')
+                        ->body($message)
+                        ->danger()
+                        ->send();
+
+                    $action->halt();
+
+                    return;
+                }
+
+                Notification::make()
+                    ->title('Template published')
+                    ->body('The KPI template is now published and locked for editing.')
+                    ->success()
+                    ->send();
+            })
+            ->successRedirectUrl(fn (KpiTemplate $record): string => KpiTemplateResource::getUrl('view', ['record' => $record]));
     }
 
     public static function duplicateToYear(): Action

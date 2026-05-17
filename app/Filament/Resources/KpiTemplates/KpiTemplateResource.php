@@ -11,6 +11,7 @@ use App\Filament\Resources\KpiTemplates\Pages\ViewKpiTemplate;
 use App\Filament\Resources\KpiTemplates\RelationManagers\KpiTemplateItemsRelationManager;
 use App\Filament\Resources\KpiTemplates\Schemas\KpiTemplateForm;
 use App\Filament\Resources\KpiTemplates\Tables\KpiTemplatesTable;
+use App\Models\KpiScoreRule;
 use App\Models\KpiTemplate;
 use BackedEnum;
 use Filament\Infolists\Components\TextEntry;
@@ -43,30 +44,52 @@ class KpiTemplateResource extends Resource
     {
         return $schema
             ->components([
-                Section::make('Template Preview')
+                Section::make('Template Overview')
                     ->schema([
                         Grid::make(2)
                             ->schema([
-                                TextEntry::make('name'),
-                                TextEntry::make('code'),
-                                TextEntry::make('year'),
-                                TextEntry::make('revision'),
+                                TextEntry::make('name')
+                                    ->label('Template Name'),
+                                TextEntry::make('code')
+                                    ->label('Template Code'),
+                                TextEntry::make('year')
+                                    ->label('KPI Year'),
+                                TextEntry::make('revision')
+                                    ->label('Revision'),
                                 TextEntry::make('division.name')
+                                    ->label('Division')
                                     ->placeholder('All divisions'),
                                 TextEntry::make('department.name')
+                                    ->label('Department')
                                     ->placeholder('All departments'),
                                 TextEntry::make('position.name')
+                                    ->label('Position')
                                     ->placeholder('All positions'),
                                 TextEntry::make('published_at')
+                                    ->label('Published At')
                                     ->dateTime('d M Y H:i')
                                     ->placeholder('Draft'),
                                 TextEntry::make('is_active')
+                                    ->label('Status')
                                     ->badge()
                                     ->formatStateUsing(fn (bool $state): string => $state ? 'Active' : 'Inactive'),
+                                TextEntry::make('items_count')
+                                    ->label('KPI Components')
+                                    ->state(fn (KpiTemplate $record): int => $record->items()->count()),
                                 TextEntry::make('total_weight')
                                     ->state(fn (KpiTemplate $record): string => number_format((float) $record->items()->sum('weight'), 2))
                                     ->label('Total Weight'),
+                                TextEntry::make('score_rule_0_count')
+                                    ->label('Score 0 Rules')
+                                    ->state(fn (KpiTemplate $record): int => KpiScoreRule::query()->whereHas('item', fn ($query) => $query->where('kpi_template_id', $record->getKey()))->where('score', 0)->count()),
+                                TextEntry::make('score_rule_1_count')
+                                    ->label('Score 1 Rules')
+                                    ->state(fn (KpiTemplate $record): int => KpiScoreRule::query()->whereHas('item', fn ($query) => $query->where('kpi_template_id', $record->getKey()))->where('score', 1)->count()),
+                                TextEntry::make('score_rule_2_count')
+                                    ->label('Score 2 Rules')
+                                    ->state(fn (KpiTemplate $record): int => KpiScoreRule::query()->whereHas('item', fn ($query) => $query->where('kpi_template_id', $record->getKey()))->where('score', 2)->count()),
                                 TextEntry::make('description')
+                                    ->label('Description')
                                     ->columnSpanFull()
                                     ->placeholder('-'),
                             ]),

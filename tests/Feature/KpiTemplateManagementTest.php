@@ -429,6 +429,22 @@ it('employee cannot manage templates', function () {
     $this->get("/admin/kpi-templates/{$template->getRouteKey()}/edit")->assertForbidden();
 });
 
+it('hrd can access the kpi template list page', function () {
+    actingAsRole(SystemRole::HRD->value);
+
+    $this->get('/admin/kpi-templates')
+        ->assertOk()
+        ->assertSee('KPI Templates');
+});
+
+it('dashboard widget loads for hrd users', function () {
+    actingAsRole(SystemRole::HRD->value);
+
+    $this->get('/admin')
+        ->assertOk()
+    ->assertSee('Dashboard');
+});
+
 it('template resources require authentication', function () {
     $template = KpiTemplate::factory()->create();
 

@@ -72,4 +72,12 @@ class KpiTemplate extends Model
     {
         return $this->hasMany(KpiTemplateItem::class)->orderBy('sort_order');
     }
+
+    /**
+     * @return HasMany<KpiAssignment, $this>
+     */
+    public function assignments(): HasMany
+    {
+        return $this->hasMany(KpiAssignment::class);
+    }
 }

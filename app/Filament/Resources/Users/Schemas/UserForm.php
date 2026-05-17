@@ -1,54 +1,71 @@
 <?php
 
-namespace App\Filament\Resources\KpiTemplates\Schemas;
+namespace App\Filament\Resources\Users\Schemas;
 
+use App\Enums\SystemRole;
 use App\Models\Department;
 use App\Models\Division;
 use App\Models\Position;
+use App\Models\User;
 use Closure;
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
+use Illuminate\Support\Facades\Hash;
+use Spatie\Permission\Models\Role;
 
-class KpiTemplateForm
+class UserForm
 {
     public static function configure(Schema $schema): Schema
     {
         return $schema
             ->components([
-                Section::make('Template Identity')
+                Section::make('Personal')
                     ->schema([
                         Grid::make(2)
                             ->schema([
                                 TextInput::make('name')
-                                    ->label('Template Name')
+                                    ->label('Full Name')
                                     ->required()
                                     ->maxLength(255),
-                                TextInput::make('code')
-                                    ->label('Template Code')
+                                TextInput::make('employee_code')
+                                    ->label('Employee Code')
+                                    ->maxLength(50)
+                                    ->unique(User::class, 'employee_code', ignoreRecord: true),
+                                TextInput::make('email')
+                                    ->label('Email')
+                                    ->email()
                                     ->required()
                                     ->maxLength(255)
-                                    ->unique(ignoreRecord: true),
-                                TextInput::make('year')
-                                    ->label('KPI Year')
-                                    ->required()
-                                    ->numeric()
-                                    ->minValue(2000)
-                                    ->maxValue(2100),
-                                TextInput::make('revision')
-                                    ->label('Revision')
-                                    ->required()
-                                    ->default('00')
-                                    ->maxLength(20),
+                                    ->unique(User::class, 'email', ignoreRecord: true),
+                                TextInput::make('password')
+                                    ->label('Password')
+                                    ->password()
+                                    ->revealable()
+                                    ->required(fn (string $operation): bool => $operation === 'create')
+                                    ->dehydrated(fn (?string $state): bool => filled($state))
+                                    ->dehydrateStateUsing(fn (string $state): string => Hash::make($state))
+                                    ->minLength(8)
+                                    ->confirmed(),
+                                TextInput::make('password_confirmation')
+                                    ->label('Confirm Password')
+                                    ->password()
+                                    ->revealable()
+                                    ->required(fn (string $operation): bool => $operation === 'create')
+                                    ->dehydrated(false),
+                                Select::make('roles')
+                                    ->label('Role')
+                                    ->multiple()
+                                    ->relationship('roles', 'name', fn ($query) => $query->whereNotIn('name', [SystemRole::SUPER_ADMIN->value]))
+                                    ->preload(),
                             ]),
                     ]),
-                Section::make('Scope')
+                Section::make('Organization')
                     ->schema([
                         Grid::make(2)
                             ->schema([
@@ -114,28 +131,43 @@ class KpiTemplateForm
                                             }
                                         };
                                     }),
+                                Select::make('supervisor_id')
+                                    ->label('Supervisor')
+                                    ->options(fn (Get $get, ?User $record): array => User::query()
+                                        ->when($record, fn ($query, $user) => $query->whereKeyNot($user->getKey()))
+                                        ->orderBy('name')
+                                        ->pluck('name', 'id')
+                                        ->all())
+                                    ->searchable()
+                                    ->preload(),
                             ]),
                     ]),
-                Section::make('Status')
+                Section::make('Contact & Employment')
                     ->schema([
                         Grid::make(2)
                             ->schema([
-                                Toggle::make('is_active')
-                                    ->label('Active')
-                                    ->required()
-                                    ->default(true)
-                                    ->inline(false),
-                                TextInput::make('published_at')
-                                    ->label('Published At')
-                                    ->disabled()
-                                    ->columnSpanFull(),
+                                TextInput::make('whatsapp')
+                                    ->label('WhatsApp')
+                                    ->tel()
+                                    ->maxLength(30),
+                                TextInput::make('phone')
+                                    ->label('Phone')
+                                    ->tel()
+                                    ->maxLength(30),
+                                Select::make('employment_status')
+                                    ->label('Employment Status')
+                                    ->options([
+                                        'active' => 'Active',
+                                        'probation' => 'Probation',
+                                        'contract' => 'Contract',
+                                        'inactive' => 'Inactive',
+                                        'terminated' => 'Terminated',
+                                        'resigned' => 'Resigned',
+                                        'former' => 'Former',
+                                    ]),
+                                DatePicker::make('joined_at')
+                                    ->label('Date Joined'),
                             ]),
-                    ]),
-                Section::make('Description')
-                    ->schema([
-                        Textarea::make('description')
-                            ->rows(4)
-                            ->columnSpanFull(),
                     ]),
             ]);
     }

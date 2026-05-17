@@ -13,11 +13,7 @@ return new class extends Migration
     {
         Schema::create('kpi_template_items', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('kpi_template_id')
-                ->constrained()
-                ->cascadeOnUpdate()
-                ->cascadeOnDelete()
-                ->index();
+            $table->unsignedBigInteger('kpi_template_id')->index();
             $table->unsignedInteger('sort_order');
             $table->string('name');
             $table->text('description')->nullable();
@@ -26,6 +22,12 @@ return new class extends Migration
             $table->string('data_source')->nullable();
             $table->boolean('is_required')->default(true);
             $table->timestamps();
+
+            $table->foreign('kpi_template_id', 'fk_kpi_template_items_template')
+                ->references('id')
+                ->on('kpi_templates')
+                ->cascadeOnUpdate()
+                ->cascadeOnDelete();
         });
     }
 

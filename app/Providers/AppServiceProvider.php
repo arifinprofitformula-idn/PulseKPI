@@ -2,10 +2,12 @@
 
 namespace App\Providers;
 
+use App\Models\KpiPeriod;
 use App\Models\KpiScoreRule;
 use App\Models\KpiTemplate;
 use App\Models\KpiTemplateItem;
 use App\Models\User;
+use App\Observers\KpiPeriodObserver;
 use App\Observers\KpiScoreRuleObserver;
 use App\Observers\KpiTemplateItemObserver;
 use App\Observers\KpiTemplateObserver;
@@ -28,6 +30,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         User::observe(UserObserver::class);
+        KpiPeriod::observe(KpiPeriodObserver::class);
         KpiTemplate::observe(KpiTemplateObserver::class);
         KpiTemplateItem::observe(KpiTemplateItemObserver::class);
         KpiScoreRule::observe(KpiScoreRuleObserver::class);
