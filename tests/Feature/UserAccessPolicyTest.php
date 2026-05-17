@@ -49,6 +49,17 @@ it('employee can view their own profile', function () {
         ->assertSee($employee->email);
 });
 
+it('employee cannot view another unrelated employee profile', function () {
+    $employee = User::factory()->create();
+    $employee->assignRole(SystemRole::EMPLOYEE->value);
+    $otherEmployee = User::factory()->create();
+    $otherEmployee->assignRole(SystemRole::EMPLOYEE->value);
+
+    $this->actingAs($employee)
+        ->get(route('users.show', $otherEmployee))
+        ->assertForbidden();
+});
+
 it('user organization relationships work correctly', function () {
     $division = Division::factory()->create();
     $department = Department::factory()->create([
