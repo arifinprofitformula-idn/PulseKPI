@@ -53,4 +53,12 @@ class KpiTemplateItem extends Model
     {
         return $this->hasMany(KpiScoreRule::class)->orderBy('score');
     }
+
+    /**
+     * @return HasMany<KpiAssessmentItem, $this>
+     */
+    public function assessmentItems(): HasMany
+    {
+        return $this->hasMany(KpiAssessmentItem::class, 'kpi_template_item_id');
+    }
 }

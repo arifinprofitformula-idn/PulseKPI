@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\KpiAssessmentEvidenceDownloadController;
+use App\Http\Controllers\MyKpiAssessmentController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserProfileController;
 use Illuminate\Support\Facades\Route;
@@ -19,6 +21,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/users/{user}', UserProfileController::class)
         ->middleware('can:view,user')
         ->name('users.show');
+    Route::get('/my/kpi-assessments/{kpiAssessment}', [MyKpiAssessmentController::class, 'show'])
+        ->middleware('can:view,kpiAssessment')
+        ->name('my.kpi-assessments.show');
+    Route::get('/kpi-assessment-items/{item}/evidence', KpiAssessmentEvidenceDownloadController::class)
+        ->name('kpi-assessment-items.evidence.download');
 });
 
 require __DIR__.'/auth.php';

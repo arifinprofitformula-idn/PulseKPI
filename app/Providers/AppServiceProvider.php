@@ -2,8 +2,10 @@
 
 namespace App\Providers;
 
+use App\Events\KpiAssessmentSubmitted;
 use App\Events\KpiAssigned;
 use App\Events\KpiAssignmentCancelled;
+use App\Listeners\SendKpiAssessmentSubmittedNotification;
 use App\Listeners\SendKpiAssignedNotification;
 use App\Listeners\SendKpiAssignmentCancelledNotification;
 use App\Models\KpiPeriod;
@@ -42,5 +44,6 @@ class AppServiceProvider extends ServiceProvider
 
         Event::listen(KpiAssigned::class, SendKpiAssignedNotification::class);
         Event::listen(KpiAssignmentCancelled::class, SendKpiAssignmentCancelledNotification::class);
+        Event::listen(KpiAssessmentSubmitted::class, SendKpiAssessmentSubmittedNotification::class);
     }
 }

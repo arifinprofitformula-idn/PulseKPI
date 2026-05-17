@@ -19,4 +19,9 @@ return [
         'email' => env('SUPER_ADMIN_EMAIL', 'admin@pulsekpi.test'),
         'password' => env('SUPER_ADMIN_PASSWORD', 'ChangeMe123!'),
     ],
+
+    'assessments' => [
+        'evidence_disk' => env('KPI_ASSESSMENT_EVIDENCE_DISK', env('FILESYSTEM_DISK', 'local')),
+        'max_evidence_size_kb' => (int) env('KPI_ASSESSMENT_EVIDENCE_MAX_KB', 5120),
+    ],
 ];
