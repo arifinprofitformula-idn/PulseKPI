@@ -1,0 +1,21 @@
+{
+  "preset": "laravel",
+  "rules": {
+    "declare_strict_types": false,
+    "ordered_imports": {
+      "sort_algorithm": "alpha"
+    },
+    "no_unused_imports": true,
+    "single_quote": true,
+    "trailing_comma_in_multiline": true,
+    "binary_operator_spaces": {
+      "default": "single_space"
+    }
+  },
+  "exclude": [
+    "storage",
+    "bootstrap/cache",
+    "vendor",
+    "node_modules"
+  ]
+}

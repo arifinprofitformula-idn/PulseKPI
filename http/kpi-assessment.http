@@ -1,0 +1,17 @@
+@baseUrl = http://localhost:8000
+@token = paste-token-here
+
+### List KPI Assessments
+GET {{baseUrl}}/api/kpi-assessments
+Accept: application/json
+Authorization: Bearer {{token}}
+
+### Submit KPI Assessment
+POST {{baseUrl}}/api/kpi-assessments/1/submit
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "notes": "Submitted for HRD review."
+}

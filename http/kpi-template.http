@@ -1,0 +1,23 @@
+@baseUrl = http://localhost:8000
+@token = paste-token-here
+
+### List KPI Templates
+GET {{baseUrl}}/api/kpi-templates
+Accept: application/json
+Authorization: Bearer {{token}}
+
+### Create KPI Template
+POST {{baseUrl}}/api/kpi-templates
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "Leader Marcom KPI 2026",
+  "year": 2026,
+  "division_id": 1,
+  "department_id": 1,
+  "position_id": 1,
+  "revision": "00",
+  "is_active": true
+}

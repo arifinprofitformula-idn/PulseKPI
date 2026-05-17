@@ -1,0 +1,32 @@
+@baseUrl = http://localhost:8000
+@token = paste-token-here
+
+### Review KPI Assessment
+POST {{baseUrl}}/api/kpi-assessments/1/review
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "notes": "Reviewed by HRD."
+}
+
+### Approve KPI Assessment
+POST {{baseUrl}}/api/kpi-assessments/1/approve
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "notes": "Approved."
+}
+
+### Reject KPI Assessment
+POST {{baseUrl}}/api/kpi-assessments/1/reject
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "notes": "Please revise evidence data."
+}

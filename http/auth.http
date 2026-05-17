@@ -1,0 +1,17 @@
+@baseUrl = http://localhost:8000
+@token = paste-token-here
+
+### Login
+POST {{baseUrl}}/login
+Accept: application/json
+Content-Type: application/json
+
+{
+  "email": "admin@example.com",
+  "password": "password"
+}
+
+### Current User
+GET {{baseUrl}}/api/user
+Accept: application/json
+Authorization: Bearer {{token}}
