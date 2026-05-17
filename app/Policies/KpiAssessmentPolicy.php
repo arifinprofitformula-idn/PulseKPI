@@ -20,6 +20,17 @@ class KpiAssessmentPolicy
             || $user->hasRole(SystemRole::EMPLOYEE->value);
     }
 
+    public function viewReports(User $user): bool
+    {
+        return $user->hasRole(SystemRole::SUPER_ADMIN->value)
+            || $user->can(SystemPermission::VIEW_REPORTS->value);
+    }
+
+    public function viewDashboard(User $user): bool
+    {
+        return $this->viewAny($user);
+    }
+
     public function view(User $user, KpiAssessment $assessment): bool
     {
         if ($user->hasRole(SystemRole::SUPER_ADMIN->value) || $user->hasRole(SystemRole::HRD->value)) {

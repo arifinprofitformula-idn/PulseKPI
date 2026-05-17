@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\KpiAssessmentEvidenceDownloadController;
 use App\Http\Controllers\MyKpiAssessmentController;
+use App\Http\Controllers\MyKpiDashboardController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserProfileController;
 use Illuminate\Support\Facades\Route;
@@ -18,6 +19,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::get('/my/kpi-dashboard', MyKpiDashboardController::class)
+        ->name('my.kpi-dashboard');
     Route::get('/users/{user}', UserProfileController::class)
         ->middleware('can:view,user')
         ->name('users.show');
