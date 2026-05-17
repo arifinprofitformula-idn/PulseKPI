@@ -1,46 +1,64 @@
 <x-guest-layout>
+    <x-auth-card
+        title="Buat password baru"
+        :description="'Tetapkan password baru untuk melanjutkan akses ke ' . config('branding.name', config('app.name')) . '. Gunakan kombinasi yang kuat dan mudah Anda simpan dengan aman.'"
+    >
+        <form method="POST" action="{{ route('password.store') }}" class="space-y-5">
+            @csrf
 
-    <div class="mb-8">
-        <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Buat Password Baru</h2>
-        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-            Masukkan password baru yang kuat untuk akun Anda.
-        </p>
-    </div>
+            <input type="hidden" name="token" value="{{ $request->route('token') }}">
 
-    <form method="POST" action="{{ route('password.store') }}" class="space-y-5">
-        @csrf
+            <div class="space-y-2">
+                <x-input-label for="email" :value="__('Email')" />
+                <x-text-input
+                    id="email"
+                    class="block w-full"
+                    type="email"
+                    name="email"
+                    :value="old('email', $request->email)"
+                    required
+                    autofocus
+                    autocomplete="username"
+                    placeholder="nama@perusahaan.com"
+                />
+                <x-input-error :messages="$errors->get('email')" />
+            </div>
 
-        <!-- Password Reset Token -->
-        <input type="hidden" name="token" value="{{ $request->route('token') }}">
+            <div class="space-y-2">
+                <x-input-label for="password" :value="__('Password Baru')" />
+                <x-text-input
+                    id="password"
+                    class="block w-full"
+                    type="password"
+                    name="password"
+                    required
+                    autocomplete="new-password"
+                    placeholder="Minimal 8 karakter"
+                />
+                <x-input-error :messages="$errors->get('password')" />
+            </div>
 
-        <!-- Email Address -->
-        <div>
-            <x-input-label for="email" :value="__('Email')" class="text-gray-700 dark:text-gray-300 font-medium" />
-            <x-text-input id="email" class="block mt-1.5 w-full" type="email" name="email"
-                          :value="old('email', $request->email)" required autofocus autocomplete="username" />
-            <x-input-error :messages="$errors->get('email')" class="mt-1.5" />
-        </div>
+            <div class="space-y-2">
+                <x-input-label for="password_confirmation" :value="__('Konfirmasi Password')" />
+                <x-text-input
+                    id="password_confirmation"
+                    class="block w-full"
+                    type="password"
+                    name="password_confirmation"
+                    required
+                    autocomplete="new-password"
+                    placeholder="Ulangi password baru"
+                />
+                <x-input-error :messages="$errors->get('password_confirmation')" />
+            </div>
 
-        <!-- Password -->
-        <div>
-            <x-input-label for="password" :value="__('Password Baru')" class="text-gray-700 dark:text-gray-300 font-medium" />
-            <x-text-input id="password" class="block mt-1.5 w-full"
-                          type="password" name="password" required autocomplete="new-password" />
-            <x-input-error :messages="$errors->get('password')" class="mt-1.5" />
-        </div>
+            <div class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm leading-6 text-slate-600">
+                Setelah password diperbarui, Anda bisa kembali masuk dan melanjutkan proses KPI sesuai akses akun Anda.
+            </div>
 
-        <!-- Confirm Password -->
-        <div>
-            <x-input-label for="password_confirmation" :value="__('Konfirmasi Password')" class="text-gray-700 dark:text-gray-300 font-medium" />
-            <x-text-input id="password_confirmation" class="block mt-1.5 w-full"
-                          type="password" name="password_confirmation"
-                          required autocomplete="new-password" />
-            <x-input-error :messages="$errors->get('password_confirmation')" class="mt-1.5" />
-        </div>
-
-        <x-primary-button class="w-full py-2.5 text-sm">
-            {{ __('Simpan Password') }}
-        </x-primary-button>
-    </form>
-
+            <x-primary-button class="w-full justify-center">
+                {{ __('Simpan password baru') }}
+            </x-primary-button>
+        </form>
+    </x-auth-card>
 </x-guest-layout>

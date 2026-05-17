@@ -33,7 +33,13 @@ class KpiTemplateResource extends Resource
 
     protected static string|\UnitEnum|null $navigationGroup = 'KPI Management';
 
-    protected static ?string $navigationLabel = 'KPI Templates';
+    protected static ?string $navigationLabel = 'Template KPI';
+
+    protected static ?string $modelLabel = 'Template KPI';
+
+    protected static ?string $pluralModelLabel = 'Template KPI';
+
+    protected static ?int $navigationSort = 1;
 
     public static function form(Schema $schema): Schema
     {

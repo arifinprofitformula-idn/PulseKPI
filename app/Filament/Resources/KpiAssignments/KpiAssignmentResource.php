@@ -29,9 +29,13 @@ class KpiAssignmentResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedClipboardDocumentCheck;
 
-    protected static string|\UnitEnum|null $navigationGroup = 'KPI Management';
+    protected static string|\UnitEnum|null $navigationGroup = 'KPI Operations';
 
-    protected static ?string $navigationLabel = 'KPI Assignments';
+    protected static ?string $navigationLabel = 'Assignment KPI';
+
+    protected static ?string $modelLabel = 'Assignment KPI';
+
+    protected static ?string $pluralModelLabel = 'Assignment KPI';
 
     protected static ?int $navigationSort = 2;
 

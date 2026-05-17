@@ -23,9 +23,13 @@ class KpiPeriodResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCalendar;
 
-    protected static string|\UnitEnum|null $navigationGroup = 'KPI Management';
+    protected static string|\UnitEnum|null $navigationGroup = 'KPI Operations';
 
-    protected static ?string $navigationLabel = 'KPI Periods';
+    protected static ?string $navigationLabel = 'Periode KPI';
+
+    protected static ?string $modelLabel = 'Periode KPI';
+
+    protected static ?string $pluralModelLabel = 'Periode KPI';
 
     protected static ?int $navigationSort = 1;
 

@@ -21,11 +21,17 @@ class PositionResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'name';
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBriefcase;
 
     protected static string|\UnitEnum|null $navigationGroup = 'Master Data';
 
-    protected static ?string $navigationLabel = 'Positions';
+    protected static ?string $navigationLabel = 'Posisi';
+
+    protected static ?string $modelLabel = 'Posisi';
+
+    protected static ?string $pluralModelLabel = 'Posisi';
+
+    protected static ?int $navigationSort = 3;
 
     public static function form(Schema $schema): Schema
     {

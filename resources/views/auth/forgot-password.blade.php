@@ -1,36 +1,45 @@
 <x-guest-layout>
+    <x-auth-card
+        title="Reset password"
+        :description="'Masukkan email akun ' . config('branding.name', config('app.name')) . ' Anda. Kami akan mengirimkan tautan aman untuk membuat password baru.'"
+    >
+        <x-auth-session-status class="mb-6" :status="session('status')" />
 
-    <div class="mb-8">
-        <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Reset Password</h2>
-        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-            Masukkan email Anda dan kami akan mengirimkan tautan untuk membuat password baru.
-        </p>
-    </div>
+        <form method="POST" action="{{ route('password.email') }}" class="space-y-5">
+            @csrf
 
-    <!-- Session Status -->
-    <x-auth-session-status class="mb-4" :status="session('status')" />
+            <div class="space-y-2">
+                <x-input-label for="email" :value="__('Email')" />
+                <x-text-input
+                    id="email"
+                    class="block w-full"
+                    type="email"
+                    name="email"
+                    :value="old('email')"
+                    required
+                    autofocus
+                    autocomplete="username"
+                    placeholder="nama@perusahaan.com"
+                />
+                <x-input-error :messages="$errors->get('email')" />
+            </div>
 
-    <form method="POST" action="{{ route('password.email') }}" class="space-y-5">
-        @csrf
+            <div class="rounded-2xl border border-brand-100 bg-brand-50/80 px-4 py-3 text-sm leading-6 text-brand-900">
+                Pastikan Anda memakai email yang terdaftar agar tautan reset dikirim ke alamat yang benar.
+            </div>
 
-        <!-- Email Address -->
-        <div>
-            <x-input-label for="email" :value="__('Email')" class="text-gray-700 dark:text-gray-300 font-medium" />
-            <x-text-input id="email" class="block mt-1.5 w-full" type="email" name="email"
-                          :value="old('email')" required autofocus />
-            <x-input-error :messages="$errors->get('email')" class="mt-1.5" />
-        </div>
+            <div class="space-y-3 pt-2">
+                <x-primary-button class="w-full justify-center">
+                    {{ __('Kirim tautan reset') }}
+                </x-primary-button>
 
-        <x-primary-button class="w-full py-2.5 text-sm">
-            {{ __('Kirim Tautan Reset') }}
-        </x-primary-button>
-
-        <p class="text-center text-sm text-gray-500 dark:text-gray-400">
-            Sudah ingat password?
-            <a href="{{ route('login') }}" class="text-brand-600 dark:text-brand-400 hover:underline font-medium">
-                Masuk
-            </a>
-        </p>
-    </form>
-
+                <a
+                    href="{{ route('login') }}"
+                    class="pulse-button-secondary w-full justify-center"
+                >
+                    Kembali ke login
+                </a>
+            </div>
+        </form>
+    </x-auth-card>
 </x-guest-layout>

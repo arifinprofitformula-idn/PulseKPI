@@ -20,15 +20,15 @@ class KpiReportExportResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedArrowDownTray;
 
-    protected static string|\UnitEnum|null $navigationGroup = 'KPI Management';
+    protected static string|\UnitEnum|null $navigationGroup = 'Exports';
 
-    protected static ?string $navigationLabel = 'My Exports';
+    protected static ?string $navigationLabel = 'Exports';
 
-    protected static ?string $modelLabel = 'KPI Export';
+    protected static ?string $modelLabel = 'Export';
 
-    protected static ?string $pluralModelLabel = 'KPI Exports';
+    protected static ?string $pluralModelLabel = 'Exports';
 
-    protected static ?int $navigationSort = 5;
+    protected static ?int $navigationSort = 1;
 
     public static function form(Schema $schema): Schema
     {

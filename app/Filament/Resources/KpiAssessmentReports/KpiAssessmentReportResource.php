@@ -27,15 +27,15 @@ class KpiAssessmentReportResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedChartBarSquare;
 
-    protected static string|\UnitEnum|null $navigationGroup = 'KPI Management';
+    protected static string|\UnitEnum|null $navigationGroup = 'Reports';
 
-    protected static ?string $navigationLabel = 'KPI Assessment Report';
+    protected static ?string $navigationLabel = 'Laporan KPI';
 
-    protected static ?string $modelLabel = 'KPI Assessment Report';
+    protected static ?string $modelLabel = 'Laporan KPI';
 
-    protected static ?string $pluralModelLabel = 'KPI Assessment Reports';
+    protected static ?string $pluralModelLabel = 'Laporan KPI';
 
-    protected static ?int $navigationSort = 4;
+    protected static ?int $navigationSort = 1;
 
     public static function form(Schema $schema): Schema
     {

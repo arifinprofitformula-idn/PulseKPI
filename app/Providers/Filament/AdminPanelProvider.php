@@ -29,10 +29,17 @@ class AdminPanelProvider extends PanelProvider
             ->path('admin')
             ->login()
             ->brandName(config('branding.name', config('app.name')))
+            ->brandLogo(asset(config('branding.assets.logo_full', config('branding.logo_full'))))
+            ->brandLogoHeight('2rem')
+            ->favicon(asset(config('branding.assets.favicon', 'favicon.png')))
             ->colors([
-                'primary' => Color::hex('#0F9D8A'),
+                'primary' => Color::hex(config('branding.colors.primary', config('branding.primary_color', '#0F9D8A'))),
+                'gray' => Color::Slate,
             ])
+            ->viteTheme('resources/css/filament/admin/theme.css')
+            ->sidebarCollapsibleOnDesktop()
             ->navigationGroups([
+                'Dashboard',
                 'Master Data',
                 'KPI Management',
                 'KPI Operations',

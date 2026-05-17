@@ -21,11 +21,17 @@ class DivisionResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'name';
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBuildingOffice2;
 
     protected static string|\UnitEnum|null $navigationGroup = 'Master Data';
 
-    protected static ?string $navigationLabel = 'Divisions';
+    protected static ?string $navigationLabel = 'Divisi';
+
+    protected static ?string $modelLabel = 'Divisi';
+
+    protected static ?string $pluralModelLabel = 'Divisi';
+
+    protected static ?int $navigationSort = 1;
 
     public static function form(Schema $schema): Schema
     {

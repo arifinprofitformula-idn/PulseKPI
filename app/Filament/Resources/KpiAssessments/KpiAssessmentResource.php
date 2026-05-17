@@ -23,9 +23,13 @@ class KpiAssessmentResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedClipboardDocumentList;
 
-    protected static string|\UnitEnum|null $navigationGroup = 'KPI Management';
+    protected static string|\UnitEnum|null $navigationGroup = 'KPI Operations';
 
-    protected static ?string $navigationLabel = 'KPI Assessments';
+    protected static ?string $navigationLabel = 'Assessment KPI';
+
+    protected static ?string $modelLabel = 'Assessment KPI';
+
+    protected static ?string $pluralModelLabel = 'Assessment KPI';
 
     protected static ?int $navigationSort = 3;
 
