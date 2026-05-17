@@ -3,11 +3,14 @@
 namespace App\Models;
 
 use App\Enums\SystemPermission;
+use App\Enums\SystemRole;
 use Database\Factories\UserFactory;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
@@ -29,6 +32,15 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
         'name',
         'email',
         'password',
+        'employee_code',
+        'whatsapp',
+        'phone',
+        'division_id',
+        'department_id',
+        'position_id',
+        'supervisor_id',
+        'employment_status',
+        'joined_at',
     ];
 
     /**
@@ -50,6 +62,7 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
     {
         return [
             'email_verified_at' => 'datetime',
+            'joined_at' => 'date',
             'password' => 'hashed',
         ];
     }
@@ -57,5 +70,55 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
     public function canAccessPanel(Panel $panel): bool
     {
         return $this->can(SystemPermission::ACCESS_ADMIN_PANEL->value);
+    }
+
+    /**
+     * @return BelongsTo<Division, $this>
+     */
+    public function division(): BelongsTo
+    {
+        return $this->belongsTo(Division::class);
+    }
+
+    /**
+     * @return BelongsTo<Department, $this>
+     */
+    public function department(): BelongsTo
+    {
+        return $this->belongsTo(Department::class);
+    }
+
+    /**
+     * @return BelongsTo<Position, $this>
+     */
+    public function position(): BelongsTo
+    {
+        return $this->belongsTo(Position::class);
+    }
+
+    /**
+     * @return BelongsTo<User, $this>
+     */
+    public function supervisor(): BelongsTo
+    {
+        return $this->belongsTo(self::class, 'supervisor_id');
+    }
+
+    /**
+     * @return HasMany<User, $this>
+     */
+    public function subordinates(): HasMany
+    {
+        return $this->hasMany(self::class, 'supervisor_id');
+    }
+
+    public function manages(User $user): bool
+    {
+        return $user->supervisor_id === $this->getKey();
+    }
+
+    public function isManager(): bool
+    {
+        return $this->hasRole(SystemRole::MANAGER->value);
     }
 }

@@ -15,5 +15,11 @@ class DatabaseSeeder extends Seeder
             RolePermissionSeeder::class,
             SuperAdminSeeder::class,
         ]);
+
+        if (app()->environment(['local', 'testing'])) {
+            $this->call([
+                OrganizationStructureSeeder::class,
+            ]);
+        }
     }
 }
