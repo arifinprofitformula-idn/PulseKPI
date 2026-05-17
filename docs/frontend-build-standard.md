@@ -2,9 +2,11 @@
 
 ## Decision Status
 
-PulseKPI currently uses a controlled hybrid frontend build.
+PulseKPI now uses a split frontend standard after Phase 1.
 
-This is the active and approved standard until a dedicated migration sprint moves the whole project to Tailwind CSS v4.
+App, guest, and Breeze frontend assets use a Tailwind CSS v4-style pipeline.
+
+Filament admin remains on the existing runtime/default CSS plus override-only admin CSS.
 
 Do not treat the repository as full Tailwind v4 yet.
 
@@ -12,14 +14,12 @@ Do not treat the repository as full Tailwind v4 yet.
 
 ### App / Guest / Breeze UI
 
-- Uses a Tailwind CSS v3-style pipeline.
+- Uses a Tailwind CSS v4-style pipeline.
 - Main CSS entry is [resources/css/app.css](C:/laragon/www/pulsekpi/resources/css/app.css).
-- Uses classic directives:
-  - `@tailwind base`
-  - `@tailwind components`
-  - `@tailwind utilities`
-- Uses [tailwind.config.js](C:/laragon/www/pulsekpi/tailwind.config.js).
-- Uses classic PostCSS configuration in [postcss.config.js](C:/laragon/www/pulsekpi/postcss.config.js).
+- Uses `@import "tailwindcss"`.
+- Uses the Vite Tailwind plugin from `@tailwindcss/vite`.
+- Keeps [tailwind.config.js](C:/laragon/www/pulsekpi/tailwind.config.js) only for app theme compatibility.
+- Uses [postcss.config.js](C:/laragon/www/pulsekpi/postcss.config.js) only for non-Tailwind PostCSS plugins.
 
 ### Filament Admin
 
@@ -31,15 +31,13 @@ Do not treat the repository as full Tailwind v4 yet.
 
 ## Why This Standard Exists
 
-Filament 5.6 theme scaffolding is aligned with Tailwind CSS v4-style sources such as:
+Filament theme scaffolding is aligned with Tailwind CSS v4-style sources such as:
 
 - `@import 'tailwindcss'`
 - `@source ...`
 - Filament source theme imports from `vendor/filament/.../resources/css/theme.css`
 
-The PulseKPI app frontend is still built with a Tailwind CSS v3-style pipeline.
-
-Because of that mismatch, compiling Filament source theme files through the current app build can break the admin panel layout and produce partially unstyled UI on:
+Even after Phase 1, the app pipeline and the admin pipeline are intentionally different. Compiling Filament source theme files through the app build can still break the admin panel layout and produce partially unstyled UI on:
 
 - `/admin`
 - `/admin/login`
@@ -50,6 +48,7 @@ Because of that mismatch, compiling Filament source theme files through the curr
 ### Allowed
 
 - Continue using [resources/css/app.css](C:/laragon/www/pulsekpi/resources/css/app.css) for guest/app frontend styling.
+- Continue using the Tailwind v4 app pipeline only for app/guest/Breeze assets.
 - Continue using [resources/css/filament/admin/theme.css](C:/laragon/www/pulsekpi/resources/css/filament/admin/theme.css) for admin-only visual overrides.
 - Continue loading admin override CSS through `PanelsRenderHook::STYLES_AFTER`.
 - Continue using Filament default runtime CSS as the admin base theme.
@@ -57,6 +56,10 @@ Because of that mismatch, compiling Filament source theme files through the curr
 ### Not Allowed
 
 Do not compile Filament source theme through the current app pipeline unless the project is fully migrated to Tailwind CSS v4.
+
+Do not treat `resources/css/filament/admin/theme.css` as a Tailwind source file in Phase 1.
+
+Do not modify [app/Providers/Filament/AdminPanelProvider.php](C:/laragon/www/pulsekpi/app/Providers/Filament/AdminPanelProvider.php) during Phase 1.
 
 Do not add or re-enable:
 
@@ -119,4 +122,4 @@ The project may be treated as full Tailwind CSS v4 only when all of the followin
 - Filament admin theme integration is migrated without fallback runtime/theme mismatch
 - guest, auth, and admin layouts are regression-tested after migration
 
-Until then, PulseKPI must be treated as a controlled hybrid build.
+Until then, PulseKPI must be treated as a controlled split build: Tailwind v4 for app/guest/Breeze, Filament runtime/default CSS plus override-only admin styling for admin.
