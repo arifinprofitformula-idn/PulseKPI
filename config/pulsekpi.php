@@ -24,4 +24,8 @@ return [
         'evidence_disk' => env('KPI_ASSESSMENT_EVIDENCE_DISK', env('FILESYSTEM_DISK', 'local')),
         'max_evidence_size_kb' => (int) env('KPI_ASSESSMENT_EVIDENCE_MAX_KB', 5120),
     ],
+
+    'exports' => [
+        'disk' => env('KPI_REPORT_EXPORT_DISK', env('FILESYSTEM_DISK', 'local')),
+    ],
 ];

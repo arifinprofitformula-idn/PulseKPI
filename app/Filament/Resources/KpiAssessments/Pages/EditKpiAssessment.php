@@ -10,6 +10,7 @@ use App\Actions\KpiAssessments\SubmitKpiAssessmentAction;
 use App\Actions\KpiAssessments\UpdateKpiAssessmentAction;
 use App\Actions\KpiAssessments\UpdateKpiAssessmentItemAction;
 use App\Actions\KpiAssessments\UpdateKpiAttendanceAdjustmentAction;
+use App\Actions\Reports\KpiAssessmentDetailPdfExportAction;
 use App\Filament\Resources\KpiAssessments\KpiAssessmentResource;
 use App\Models\KpiAssessment;
 use Filament\Actions\Action;
@@ -17,6 +18,7 @@ use Filament\Forms\Components\Textarea;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\RedirectResponse;
 
 class EditKpiAssessment extends EditRecord
 {
@@ -138,6 +140,24 @@ class EditKpiAssessment extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
+            Action::make('exportPdf')
+                ->label('Export PDF')
+                ->icon('heroicon-o-document-arrow-down')
+                ->color('warning')
+                ->visible(fn (): bool => auth()->user()?->can('exportPdf', $this->getRecord()) ?? false)
+                ->action(function (): RedirectResponse {
+                    $export = app(KpiAssessmentDetailPdfExportAction::class)->execute(
+                        $this->getRecord(),
+                        auth()->user()
+                    );
+
+                    Notification::make()
+                        ->success()
+                        ->title('Assessment PDF export completed.')
+                        ->send();
+
+                    return redirect()->route('kpi-report-exports.download', $export);
+                }),
             Action::make('submitAssessment')
                 ->label('Submit Assessment')
                 ->icon('heroicon-o-paper-airplane')

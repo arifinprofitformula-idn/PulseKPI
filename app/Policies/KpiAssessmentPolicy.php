@@ -52,6 +52,15 @@ class KpiAssessmentPolicy
         return $assessment->employee !== null && $user->is($assessment->employee);
     }
 
+    public function exportPdf(User $user, KpiAssessment $assessment): bool
+    {
+        if ($assessment->status === KpiAssessmentStatus::DRAFT) {
+            return false;
+        }
+
+        return $this->view($user, $assessment);
+    }
+
     public function create(User $user): bool
     {
         return $user->isManager() || $user->hasRole(SystemRole::SUPER_ADMIN->value);

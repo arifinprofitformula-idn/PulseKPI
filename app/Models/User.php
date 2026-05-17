@@ -144,6 +144,14 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
         return $this->hasMany(KpiAssessment::class, 'assessor_id');
     }
 
+    /**
+     * @return HasMany<KpiReportExport, $this>
+     */
+    public function kpiReportExports(): HasMany
+    {
+        return $this->hasMany(KpiReportExport::class, 'requested_by');
+    }
+
     public function manages(User $user): bool
     {
         return $user->supervisor_id === $this->getKey();

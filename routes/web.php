@@ -1,7 +1,9 @@
 <?php
 
 use App\Http\Controllers\KpiAssessmentEvidenceDownloadController;
+use App\Http\Controllers\KpiReportExportDownloadController;
 use App\Http\Controllers\MyKpiAssessmentController;
+use App\Http\Controllers\MyKpiAssessmentPdfExportController;
 use App\Http\Controllers\MyKpiDashboardController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserProfileController;
@@ -27,6 +29,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/my/kpi-assessments/{kpiAssessment}', [MyKpiAssessmentController::class, 'show'])
         ->middleware('can:view,kpiAssessment')
         ->name('my.kpi-assessments.show');
+    Route::post('/my/kpi-assessments/{kpiAssessment}/export-pdf', MyKpiAssessmentPdfExportController::class)
+        ->middleware('can:exportPdf,kpiAssessment')
+        ->name('my.kpi-assessments.export-pdf');
+    Route::get('/kpi-report-exports/{kpiReportExport}/download', KpiReportExportDownloadController::class)
+        ->name('kpi-report-exports.download');
     Route::get('/kpi-assessment-items/{item}/evidence', KpiAssessmentEvidenceDownloadController::class)
         ->name('kpi-assessment-items.evidence.download');
 });
