@@ -1,0 +1,5 @@
+/* Official admin theme entry for the current PulseKPI Filament v4 pipeline.
+   Keep theme.css as the implementation layer, and treat this file as the
+   stable Vite entry referenced by Filament and deployment docs. */
+
+@import "./theme.css";

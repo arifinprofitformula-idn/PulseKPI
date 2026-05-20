@@ -658,10 +658,20 @@ body {
     margin-bottom: 1.15rem;
 }
 
+.pk-admin-login-body .fi-fo-field-label-col {
+    margin-bottom: 0.45rem;
+}
+
 .pk-admin-login-body .fi-fo-field-label {
     color: #0f172a;
     font-size: 0.9rem;
     font-weight: 600;
+}
+
+.pk-admin-login-body .fi-fo-field-label-content {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
 }
 
 .pk-admin-login-body .fi-fo-field-label-required-mark {
@@ -669,6 +679,8 @@ body {
 }
 
 .pk-admin-login-body .fi-input-wrp {
+    position: relative;
+    overflow: hidden;
     border-color: #cbd5e1;
     border-radius: 0.85rem;
     background: #ffffff;
@@ -682,13 +694,63 @@ body {
         0 0 0 4px rgb(15 157 138 / 0.12);
 }
 
+.pk-admin-login-body .fi-input-wrp-content-ctn {
+    position: relative;
+}
+
 .pk-admin-login-body .fi-input {
     min-height: 2.95rem;
     color: #0f172a;
 }
 
+.pk-admin-login-body .fi-input-wrp:has(#form\.email)::before,
+.pk-admin-login-body .fi-input-wrp:has(#form\.password)::before {
+    position: absolute;
+    top: 50%;
+    left: 0.95rem;
+    z-index: 1;
+    width: 1rem;
+    height: 1rem;
+    content: "";
+    transform: translateY(-50%);
+    opacity: 0.78;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 1rem 1rem;
+}
+
+.pk-admin-login-body .fi-input-wrp:has(#form\.email)::before {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='1.8' stroke='%2364758b'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M21.75 7.5v9A2.25 2.25 0 0 1 19.5 18.75h-15A2.25 2.25 0 0 1 2.25 16.5v-9m19.5 0A2.25 2.25 0 0 0 19.5 5.25h-15A2.25 2.25 0 0 0 2.25 7.5m19.5 0v.243a2.25 2.25 0 0 1-.97 1.856l-7.5 5.143a2.25 2.25 0 0 1-2.56 0l-7.5-5.143a2.25 2.25 0 0 1-.97-1.856V7.5' /%3E%3C%2Fsvg%3E");
+}
+
+.pk-admin-login-body .fi-input-wrp:has(#form\.password)::before {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='1.8' stroke='%2364758b'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 0h10.5A2.25 2.25 0 0 1 19.5 12.75v6A2.25 2.25 0 0 1 17.25 21h-10.5A2.25 2.25 0 0 1 4.5 18.75v-6A2.25 2.25 0 0 1 6.75 10.5Z' /%3E%3C%2Fsvg%3E");
+}
+
+.pk-admin-login-body #form\.email,
+.pk-admin-login-body #form\.password {
+    padding-left: 2.65rem;
+}
+
+.pk-admin-login-body #form\.password {
+    padding-right: 0.85rem;
+}
+
 .pk-admin-login-body .fi-input::placeholder {
     color: #94a3b8;
+}
+
+.pk-admin-login-body .fi-input-wrp-suffix {
+    padding-right: 0.35rem;
+}
+
+.pk-admin-login-body .fi-input-wrp .fi-icon-btn {
+    color: #64748b;
+}
+
+.pk-admin-login-body .fi-input-wrp .fi-icon-btn:hover {
+    color: #0f172a;
+    background: rgb(148 163 184 / 0.12);
 }
 
 .pk-admin-login-body .fi-fo-field-wrp-error-message,
@@ -973,5 +1035,303 @@ body {
 
     .pk-admin-auth-hero__footer {
         padding: 1.25rem 4rem;
+    }
+}
+
+/* Final admin login style */
+
+.pk-admin-login-body {
+    background:
+        radial-gradient(circle at 12% 14%, rgb(15 157 138 / 0.18), transparent 24%),
+        radial-gradient(circle at 86% 12%, rgb(30 77 140 / 0.16), transparent 28%),
+        linear-gradient(180deg, #edf7f7 0%, #e8f0f8 48%, #e5ebf8 100%);
+    overflow: hidden;
+}
+
+.pk-admin-login-body .fi-simple-layout,
+.pk-admin-login-body .fi-simple-main-ctn {
+    min-height: 100vh;
+    background: transparent;
+}
+
+.pk-admin-login-body .fi-simple-layout {
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.pk-admin-login-body .fi-simple-layout::before {
+    position: absolute;
+    inset: -12% -10%;
+    background:
+        radial-gradient(circle at 18% 72%, rgb(15 157 138 / 0.2), transparent 20%),
+        radial-gradient(circle at 80% 18%, rgb(59 130 246 / 0.16), transparent 24%),
+        radial-gradient(circle at 62% 84%, rgb(14 165 233 / 0.12), transparent 18%);
+    content: "";
+    filter: blur(34px);
+    animation: pk-admin-sky-drift 28s ease-in-out infinite alternate;
+    pointer-events: none;
+}
+
+.pk-admin-login-body .fi-simple-layout::after {
+    position: absolute;
+    inset: 0;
+    background:
+        linear-gradient(rgb(255 255 255 / 0.12) 1px, transparent 1px),
+        linear-gradient(90deg, rgb(255 255 255 / 0.12) 1px, transparent 1px);
+    background-size: 44px 44px;
+    content: "";
+    opacity: 0.11;
+    mask-image: linear-gradient(180deg, rgb(0 0 0 / 0.3), transparent 90%);
+    animation: pk-admin-sky-grid 32s linear infinite;
+    pointer-events: none;
+}
+
+.pk-admin-login-body .fi-simple-main-ctn {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 1.5rem 1rem;
+}
+
+.pk-admin-login-body .fi-simple-main {
+    width: 100%;
+    max-width: 29rem;
+    background: transparent;
+}
+
+.pk-admin-login-body .fi-simple-page {
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    outline: 0;
+}
+
+.pk-admin-login-body .fi-simple-page-content {
+    position: relative;
+    z-index: 1;
+    padding: 0;
+    background: transparent;
+    box-shadow: none;
+}
+
+.pk-admin-login-card {
+    position: relative;
+    overflow: hidden;
+    border: 0;
+    border-radius: 1.75rem;
+    background:
+        linear-gradient(180deg, rgb(16 27 46 / 0.9), rgb(22 38 63 / 0.84)),
+        radial-gradient(circle at top, rgb(255 255 255 / 0.05), transparent 46%);
+    padding: 1.25rem 1.2rem 1rem;
+    box-shadow:
+        0 26px 70px rgb(15 23 42 / 0.2),
+        inset 0 1px 0 rgb(255 255 255 / 0.08),
+        inset 0 -18px 36px rgb(15 23 42 / 0.22);
+    transform: translate3d(0, 0, 0);
+}
+
+.pk-admin-login-card::before {
+    position: absolute;
+    inset: -18%;
+    background:
+        radial-gradient(circle at 16% 20%, rgb(45 212 191 / 0.14), transparent 22%),
+        radial-gradient(circle at 82% 14%, rgb(125 211 252 / 0.12), transparent 24%);
+    content: "";
+    filter: blur(16px);
+    pointer-events: none;
+}
+
+.pk-admin-login-card__header--centered,
+.pk-admin-login-card__intro--centered,
+.pk-admin-login-card__footnote--centered {
+    text-align: center;
+}
+
+.pk-admin-login-card__header--centered {
+    justify-content: center;
+    margin-bottom: 0.8rem;
+}
+
+.pk-admin-login-card__logo {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgb(255 255 255 / 0.12);
+    border-radius: 1.75rem;
+    background:
+        linear-gradient(180deg, rgb(255 255 255 / 0.08), rgb(255 255 255 / 0.03)),
+        linear-gradient(160deg, rgb(15 23 42 / 0.72), rgb(30 41 59 / 0.52));
+    padding: 0.65rem;
+    box-shadow:
+        0 18px 34px rgb(2 6 23 / 0.34),
+        inset 0 1px 0 rgb(255 255 255 / 0.12),
+        inset 0 -10px 24px rgb(15 23 42 / 0.26);
+}
+
+.pk-admin-login-card__logo-image {
+    width: 100px;
+    height: 100px;
+    border-radius: 1.2rem;
+    object-fit: contain;
+    filter:
+        drop-shadow(0 8px 16px rgb(15 157 138 / 0.16))
+        drop-shadow(0 0 10px rgb(45 212 191 / 0.12));
+}
+
+.pk-admin-login-card__title,
+.pk-admin-login-body .pk-admin-login-card__title {
+    color: #f8fafc;
+    font-size: 1.7rem;
+}
+
+.pk-admin-login-card__description,
+.pk-admin-login-body .pk-admin-login-card__description {
+    color: #cbd5e1;
+}
+
+.pk-admin-login-card__intro {
+    margin-bottom: 0.85rem;
+}
+
+.pk-admin-login-card__footnote,
+.pk-admin-login-body .pk-admin-login-card__footnote {
+    margin-top: 0.75rem;
+    color: #94a3b8;
+    font-size: 0.8rem;
+}
+
+.pk-admin-login-card__developer {
+    color: #f8fafc;
+    font-weight: 600;
+}
+
+.pk-admin-login-body .fi-fo-field {
+    margin-bottom: 0.75rem;
+}
+
+.pk-admin-login-body .fi-fo-field-label,
+.pk-admin-login-body .fi-fo-field-label-content,
+.pk-admin-login-body .fi-fo-field-label-text {
+    color: #f8fafc;
+}
+
+.pk-admin-login-body .fi-input-wrp {
+    border-color: rgb(148 163 184 / 0.22);
+    border-radius: 1rem;
+    background: linear-gradient(180deg, rgb(30 41 59 / 0.56), rgb(15 23 42 / 0.64));
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.05);
+}
+
+.pk-admin-login-body .fi-input-wrp:focus-within {
+    border-color: #2dd4bf;
+    box-shadow:
+        0 0 0 1px #2dd4bf,
+        0 0 0 4px rgb(45 212 191 / 0.14);
+}
+
+.pk-admin-login-body .fi-input,
+.pk-admin-login-body #form\.email,
+.pk-admin-login-body #form\.password {
+    min-height: 2.7rem;
+    color: #f8fafc;
+}
+
+.pk-admin-login-body .fi-input::placeholder {
+    color: #94a3b8;
+}
+
+.pk-admin-login-body .fi-input-wrp .fi-icon-btn {
+    color: #94a3b8;
+}
+
+.pk-admin-login-body .fi-input-wrp .fi-icon-btn:hover {
+    color: #f8fafc;
+    background: rgb(148 163 184 / 0.14);
+}
+
+.pk-admin-login-body .fi-checkbox-input,
+.pk-admin-login-body .fi-fo-field:has(.fi-checkbox-input) {
+    display: none;
+}
+
+.pk-admin-login-body .fi-ac .fi-btn,
+.pk-admin-login-body .fi-btn.fi-color-primary {
+    width: 100%;
+    border-radius: 1rem;
+    min-height: 2.8rem;
+    background: linear-gradient(135deg, #0f9d8a 0%, #1e4d8c 100%);
+    box-shadow: 0 14px 28px rgb(15 157 138 / 0.18);
+}
+
+@media (max-width: 640px) {
+    .pk-admin-login-body .fi-simple-main-ctn {
+        padding: 1rem 0.85rem;
+    }
+
+    .pk-admin-login-card {
+        padding: 1.1rem 1rem 0.9rem;
+    }
+
+    .pk-admin-login-card__title,
+    .pk-admin-login-body .pk-admin-login-card__title {
+        font-size: 1.45rem;
+    }
+}
+
+@media (min-width: 768px) {
+    .pk-admin-login-body .fi-simple-main-ctn {
+        padding: 1.75rem;
+    }
+
+    .pk-admin-login-card {
+        padding: 1.4rem 1.35rem 1.1rem;
+    }
+}
+
+@media (min-width: 1024px) {
+    .pk-admin-login-body .fi-simple-main-ctn {
+        padding: 2rem;
+    }
+
+    .pk-admin-login-card {
+        padding: 1.45rem 1.4rem 1.15rem;
+    }
+}
+
+@keyframes pk-admin-sky-drift {
+    0% {
+        transform: translate3d(-2%, 0, 0) scale(1);
+    }
+
+    50% {
+        transform: translate3d(1.25%, -1.5%, 0) scale(1.03);
+    }
+
+    100% {
+        transform: translate3d(2.5%, 1%, 0) scale(1.015);
+    }
+}
+
+@keyframes pk-admin-sky-grid {
+    from {
+        transform: translate3d(0, 0, 0);
+    }
+
+    to {
+        transform: translate3d(0, 44px, 0);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .pk-admin-login-body .fi-simple-layout::before,
+    .pk-admin-login-body .fi-simple-layout::after {
+        animation: none;
     }
 }

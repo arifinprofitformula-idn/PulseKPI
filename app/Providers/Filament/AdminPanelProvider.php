@@ -20,7 +20,6 @@ use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Foundation\Vite;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
-use Illuminate\Support\HtmlString;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 
 class AdminPanelProvider extends PanelProvider
@@ -42,12 +41,7 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->renderHook(
                 PanelsRenderHook::STYLES_AFTER,
-                fn () => app(Vite::class)('resources/css/filament/admin/theme.css'),
-            )
-            ->renderHook(
-                PanelsRenderHook::SIMPLE_LAYOUT_START,
-                fn (): HtmlString => new HtmlString(view('filament.components.admin-auth-hero')->render()),
-                scopes: Login::class,
+                fn () => app(Vite::class)('resources/css/filament/admin/theme-v4.css'),
             )
             ->sidebarCollapsibleOnDesktop()
             ->navigationGroups([
