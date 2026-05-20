@@ -1,0 +1,29 @@
+node_modules/
+vendor/
+storage/
+bootstrap/cache/
+public/build/
+public/hot
+coverage/
+.phpunit.cache/
+.env
+*.log
+*.zip
+*.tar
+*.gz
+*.sql
+*.sqlite
+*.sqlite3
+
+# Large/generated frontend files
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
+public/css/
+public/js/
+public/mix-manifest.json
+
+# IDE/system
+.idea/
+.vscode/
+.DS_Store
