@@ -271,6 +271,28 @@ public_html/.htaccess
 
 harus tetap ikut ter-copy dari folder `public`.
 
+File `public_html/index.php` harus diarahkan ke project Laravel utama. Contoh:
+
+```php
+<?php
+
+use Illuminate\Foundation\Application;
+use Illuminate\Http\Request;
+
+define('LARAVEL_START', microtime(true));
+
+if (file_exists($maintenance = __DIR__.'/../pulsekpi/storage/framework/maintenance.php')) {
+    require $maintenance;
+}
+
+require __DIR__.'/../pulsekpi/vendor/autoload.php';
+
+/** @var Application $app */
+$app = require_once __DIR__.'/../pulsekpi/bootstrap/app.php';
+
+$app->handleRequest(Request::capture());
+```
+
 Catatan:
 
 - jangan pindahkan folder `app`, `config`, `storage`, atau `vendor` ke dalam `public_html`
@@ -427,6 +449,85 @@ php artisan optimize:clear
 ```
 
 Lalu pastikan `public/build/manifest.json` tersedia.
+
+### Muncul 404 Not Found dari LiteSpeed di homepage
+
+Jika browser menampilkan halaman bawaan LiteSpeed seperti:
+
+- `404 Not Found`
+- `The resource requested could not be found on this server`
+
+maka masalahnya hampir selalu ada di level hosting, bukan di route Laravel.
+
+Checklist perbaikan:
+
+1. Pastikan domain mengarah ke folder yang benar.
+
+Opsi terbaik:
+
+- domain/subdomain diarahkan ke `/home/USERNAME/pulsekpi/public`
+
+Opsi fallback:
+
+- isi folder `public/` Laravel sudah dipindahkan ke `public_html/`
+
+2. Pastikan file `.htaccess` dari folder `public/` ikut ada di document root.
+
+File ini wajib ada agar request diarahkan ke `index.php`.
+
+3. Pastikan file `index.php` di document root mengarah ke project Laravel yang benar.
+
+Jika project ada di:
+
+```text
+/home/USERNAME/pulsekpi
+```
+
+maka `public_html/index.php` harus memuat path seperti:
+
+```php
+require __DIR__.'/../pulsekpi/vendor/autoload.php';
+$app = require_once __DIR__.'/../pulsekpi/bootstrap/app.php';
+```
+
+4. Pastikan folder `vendor/` memang sudah ada.
+
+Jalankan:
+
+```bash
+composer install --no-dev --optimize-autoloader
+```
+
+5. Pastikan `APP_URL` sesuai domain aktif.
+
+Contoh:
+
+```env
+APP_URL=https://pulsekpi.arvadigital.web.id
+```
+
+6. Pastikan file Laravel benar-benar bisa diakses oleh web server.
+
+Minimal cek:
+
+- `public_html/index.php` ada
+- `public_html/.htaccess` ada
+- folder project utama tidak salah nama
+
+7. Setelah perbaikan, bersihkan cache aplikasi:
+
+```bash
+php artisan optimize:clear
+php artisan optimize
+```
+
+Contoh kasus paling sering:
+
+- source code ada di `/home/USERNAME/PulseKPI`
+- tetapi `public_html/index.php` masih mengarah ke `/home/USERNAME/laravel-app`
+- atau `.htaccess` belum ikut ter-copy
+
+Akibatnya LiteSpeed tidak pernah masuk ke Laravel, lalu langsung menampilkan 404 bawaan server.
 
 ### Error 500 setelah deploy
 
