@@ -3,6 +3,9 @@
 This document describes how to deploy PulseKPI to a production server. It covers a typical
 VPS or managed-server deployment using Nginx + PHP-FPM + MySQL/PostgreSQL + Redis.
 
+If you are deploying to cPanel or shared hosting with terminal access, use
+[docs/11-shared-hosting-deployment-guide.md](C:/laragon/www/pulsekpi/docs/11-shared-hosting-deployment-guide.md) instead.
+
 > **Laragon / WAMP / local dev environments are not production targets.**
 > These notes assume a Linux server. Adjust paths for your environment.
 
