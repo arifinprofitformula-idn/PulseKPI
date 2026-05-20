@@ -27,6 +27,7 @@ use App\Observers\KpiTemplateItemObserver;
 use App\Observers\KpiTemplateObserver;
 use App\Observers\UserObserver;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
@@ -39,6 +40,10 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        // Shared hosting often runs older MySQL / MariaDB variants that still
+        // enforce smaller utf8mb4 index limits.
+        Schema::defaultStringLength(191);
+
         User::observe(UserObserver::class);
         KpiPeriod::observe(KpiPeriodObserver::class);
         KpiTemplate::observe(KpiTemplateObserver::class);
