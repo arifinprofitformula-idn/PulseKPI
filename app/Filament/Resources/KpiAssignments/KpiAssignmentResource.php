@@ -115,7 +115,7 @@ class KpiAssignmentResource extends Resource
     {
         $user = auth()->user();
 
-        return $user instanceof User && $user->isManager()
+        return $user instanceof User && ($user->isManager() || $user->isSupervisor())
             ? 'Dashboard'
             : static::$navigationGroup;
     }
@@ -124,7 +124,7 @@ class KpiAssignmentResource extends Resource
     {
         $user = auth()->user();
 
-        return $user instanceof User && $user->isManager()
+        return $user instanceof User && ($user->isManager() || $user->isSupervisor())
             ? 'Team KPI'
             : (static::$navigationLabel ?? 'Assignment KPI');
     }

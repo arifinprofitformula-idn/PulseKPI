@@ -21,7 +21,7 @@ it('renders the admin login page with admin-specific branding copy', function ()
         ->assertOk()
         ->assertSee(config('branding.name'))
         ->assertSee('Akses Admin PulseKPI')
-        ->assertSee('Secure Admin');
+        ->assertSee('Masuk untuk melanjutkan ke panel admin dan area operasional KPI.');
 });
 
 it('allows a super admin to access the admin panel', function () {
@@ -54,7 +54,7 @@ it('allows a Supervisor to access the admin panel through seeded role permission
 
     $this->actingAs($user)
         ->get('/admin')
-        ->assertOk();
+        ->assertRedirect('/admin/supervisor-dashboard');
 });
 
 it('forbids a user without the panel permission from accessing the admin panel', function () {

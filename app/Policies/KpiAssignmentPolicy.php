@@ -22,7 +22,7 @@ class KpiAssignmentPolicy
     public function viewAny(User $user): bool
     {
         return $user->can(SystemPermission::ASSIGN_KPI->value)
-            || $user->isManager()
+            || $user->canAssessDirectReports()
             || $user->hasRole(SystemRole::EMPLOYEE->value);
     }
 
@@ -32,7 +32,7 @@ class KpiAssignmentPolicy
             return true;
         }
 
-        if ($user->isManager()) {
+        if ($user->canAssessDirectReports()) {
             return $assignment->employee !== null && $user->manages($assignment->employee);
         }
 

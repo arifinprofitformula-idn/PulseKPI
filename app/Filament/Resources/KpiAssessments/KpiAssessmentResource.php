@@ -55,7 +55,7 @@ class KpiAssessmentResource extends Resource
     {
         $user = auth()->user();
 
-        if ($user instanceof User && ($user->isManager() || $user->hasRole(SystemRole::APPROVER->value))) {
+        if ($user instanceof User && (($user->isManager() || $user->isSupervisor()) || $user->hasRole(SystemRole::APPROVER->value))) {
             return 'Dashboard';
         }
 
@@ -70,7 +70,7 @@ class KpiAssessmentResource extends Resource
             return 'Approval Queue';
         }
 
-        if ($user instanceof User && $user->isManager()) {
+        if ($user instanceof User && ($user->isManager() || $user->isSupervisor())) {
             return 'Assessment Queue';
         }
 

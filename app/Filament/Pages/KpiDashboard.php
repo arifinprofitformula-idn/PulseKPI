@@ -34,6 +34,7 @@ class KpiDashboard extends BaseDashboard
         }
 
         $target = match (true) {
+            $user->hasRole(SystemRole::SUPERVISOR->value) => SupervisorDashboard::getUrl(),
             $user->hasRole(SystemRole::MANAGER->value) => ManagerDashboard::getUrl(),
             $user->hasRole(SystemRole::APPROVER->value) => ApproverDashboard::getUrl(),
             default => null,

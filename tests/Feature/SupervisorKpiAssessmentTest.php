@@ -36,13 +36,17 @@ function makeSupervisorAssessmentTemplate(): KpiTemplate
 {
     $template = KpiTemplate::factory()->create([
         'is_active' => true,
-        'published_at' => now(),
+        'published_at' => null,
     ]);
 
     KpiTemplateItem::factory()->create([
         'kpi_template_id' => $template->getKey(),
         'weight' => '100.00',
         'is_required' => true,
+    ]);
+
+    $template->updateQuietly([
+        'published_at' => now(),
     ]);
 
     return $template->fresh('items');
@@ -140,10 +144,6 @@ it('Supervisor cannot assess self manager hrd super admin or approver', function
         ? $supervisor
         : makeSupervisorAssessmentUser($role);
 
-    if ($role !== SystemRole::SUPERVISOR->value) {
-        $target->update(['supervisor_id' => $supervisor->getKey()]);
-    }
-
     $assignment = makeSupervisorAssessmentAssignment($target);
 
     expect(fn () => app(CreateKpiAssessmentAction::class)->execute($assignment, $supervisor))
@@ -233,7 +233,7 @@ it('Supervisor resource visibility stays limited to direct staff and own assesse
     $visibleAssessment = app(CreateKpiAssessmentAction::class)->execute(makeSupervisorAssessmentAssignment($employee), $supervisor);
     $hiddenAssessment = app(CreateKpiAssessmentAction::class)->execute(makeSupervisorAssessmentAssignment($otherEmployee), $otherSupervisor);
 
-    actingAs($supervisor);
+    test()->actingAs($supervisor);
 
     $visibleIds = KpiAssessmentResource::getEloquentQuery()
         ->pluck('kpi_assessments.id')
