@@ -3,3 +3,645 @@
    stable Vite entry referenced by Filament and deployment docs. */
 
 @import "./theme.css";
+
+/* Login-only premium overrides for the Filament v4 admin auth page. */
+
+.pk-admin-login-body {
+    background:
+        radial-gradient(circle at 14% 18%, rgb(15 157 138 / 0.16), transparent 24%),
+        radial-gradient(circle at 86% 14%, rgb(11 47 79 / 0.12), transparent 28%),
+        linear-gradient(180deg, #f4f8fb 0%, #edf4fa 50%, #e8f0f8 100%);
+    color: #f8fafc;
+    min-height: 100dvh;
+    overflow-x: hidden;
+}
+
+.pk-admin-login-body .fi-simple-layout,
+.pk-admin-login-body .fi-simple-main-ctn {
+    min-height: 100dvh;
+    background: transparent;
+}
+
+.pk-admin-login-body .fi-simple-layout {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+    display: grid;
+    place-items: center;
+    width: 100%;
+}
+
+.pk-admin-login-body .fi-simple-layout::before,
+.pk-admin-login-body .fi-simple-layout::after {
+    position: absolute;
+    border-radius: 999px;
+    content: "";
+    filter: blur(52px);
+    pointer-events: none;
+    opacity: 0.9;
+}
+
+.pk-admin-login-body .fi-simple-layout::before {
+    top: -8rem;
+    left: -6rem;
+    width: 20rem;
+    height: 20rem;
+    background: radial-gradient(circle, rgb(15 157 138 / 0.18) 0%, transparent 68%);
+}
+
+.pk-admin-login-body .fi-simple-layout::after {
+    right: -7rem;
+    bottom: -7rem;
+    width: 22rem;
+    height: 22rem;
+    background: radial-gradient(circle, rgb(11 47 79 / 0.14) 0%, transparent 72%);
+}
+
+.pk-admin-login-body .fi-simple-main-ctn {
+    position: relative;
+    z-index: 1;
+    display: grid !important;
+    place-items: center;
+    width: 100%;
+    padding: clamp(1rem, 3vw, 2rem);
+}
+
+.pk-admin-login-body .fi-simple-main {
+    width: min(100%, 32rem);
+    max-width: 32rem;
+    margin-inline: auto;
+}
+
+.pk-admin-login-body .fi-simple-page {
+    position: relative;
+    overflow: visible !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+}
+
+.pk-admin-login-body .fi-simple-page::before {
+    content: none !important;
+    display: none !important;
+}
+
+.pk-admin-login-body .fi-simple-page-content {
+    position: relative;
+    z-index: 1;
+    padding: 0 !important;
+    background: transparent !important;
+    max-height: none;
+    overflow: visible;
+}
+
+.pk-admin-login-card {
+    position: relative;
+    width: 100%;
+    max-width: 30rem;
+    margin-inline: auto;
+    overflow: hidden;
+    border: 1px solid rgb(148 163 184 / 0.18);
+    border-radius: 2rem;
+    background:
+        radial-gradient(circle at 20% 0%, rgb(15 157 138 / 0.18), transparent 30%),
+        linear-gradient(160deg, #102338 0%, #17283d 46%, #22344b 100%);
+    padding: clamp(1.5rem, 3vw, 2.25rem);
+    box-shadow:
+        0 30px 80px rgb(15 23 42 / 0.25),
+        0 18px 48px rgb(2 6 23 / 0.3),
+        inset 0 0 0 1px rgb(255 255 255 / 0.05);
+}
+
+.pk-admin-login-card::before {
+    position: absolute;
+    inset: 0;
+    background:
+        linear-gradient(180deg, rgb(255 255 255 / 0.05), transparent 16%),
+        radial-gradient(circle at 84% 18%, rgb(96 165 250 / 0.09), transparent 22%);
+    content: "";
+    pointer-events: none;
+}
+
+.pk-admin-login-card__header--centered,
+.pk-admin-login-card__intro--centered,
+.pk-admin-login-card__footnote--centered {
+    text-align: center;
+}
+
+.pk-admin-login-card__header--centered {
+    justify-content: center;
+    margin-bottom: 1.2rem;
+}
+
+.pk-admin-login-card__logo {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 6rem;
+    min-height: 6rem;
+    margin-inline: auto;
+    margin-bottom: 1.2rem;
+    padding: 0.7rem;
+    border: 1px solid rgb(255 255 255 / 0.14);
+    border-radius: 1.4rem;
+    background:
+        linear-gradient(180deg, rgb(255 255 255 / 0.08), rgb(255 255 255 / 0.03)),
+        linear-gradient(160deg, rgb(21 38 58 / 0.88), rgb(34 52 75 / 0.66));
+    box-shadow:
+        0 14px 30px rgb(2 6 23 / 0.28),
+        0 0 0 1px rgb(255 255 255 / 0.03),
+        inset 0 1px 0 rgb(255 255 255 / 0.12);
+}
+
+.pk-admin-login-card__logo::after {
+    position: absolute;
+    inset: auto 20% 10%;
+    height: 1.1rem;
+    border-radius: 999px;
+    background: rgb(15 157 138 / 0.22);
+    content: "";
+    filter: blur(18px);
+    pointer-events: none;
+}
+
+.pk-admin-login-card__logo-image {
+    width: 82px;
+    height: 82px;
+    border-radius: 1rem;
+    object-fit: contain;
+    filter:
+        drop-shadow(0 10px 18px rgb(11 47 79 / 0.22))
+        drop-shadow(0 0 16px rgb(15 157 138 / 0.16));
+}
+
+.pk-admin-login-card__title,
+.pk-admin-login-body .pk-admin-login-card__title {
+    color: #f8fafc;
+    font-size: clamp(1.8rem, 3vw, 2.2rem);
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    line-height: 1.08;
+    text-align: center;
+}
+
+.pk-admin-login-card__description,
+.pk-admin-login-body .pk-admin-login-card__description {
+    max-width: 24rem;
+    margin: 0.75rem auto 0;
+    color: #cbd5e1;
+    font-size: 0.96rem;
+    line-height: 1.75;
+    text-align: center;
+}
+
+.pk-admin-login-card__intro {
+    margin-bottom: 1.45rem;
+}
+
+.pk-admin-login-card__footnote,
+.pk-admin-login-body .pk-admin-login-card__footnote {
+    margin-top: 1rem;
+    color: rgb(203 213 225 / 0.78);
+    font-size: 0.8rem;
+    line-height: 1.7;
+    text-align: center;
+}
+
+.pk-admin-login-card__developer {
+    color: #f8fafc;
+    font-weight: 700;
+}
+
+.pk-admin-login-body .fi-fo-field {
+    margin-bottom: 1.05rem;
+}
+
+.pk-admin-login-body .fi-fo-field-label-col {
+    margin-bottom: 0.5rem;
+}
+
+.pk-admin-login-body .fi-fo-field-label,
+.pk-admin-login-body .fi-fo-field-label-content,
+.pk-admin-login-body .fi-fo-field-label-text {
+    color: #e2e8f0;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.pk-admin-login-body .fi-fo-field-label-required-mark {
+    color: #34d399;
+}
+
+.pk-admin-login-body .fi-input-wrp {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgb(148 163 184 / 0.22);
+    border-radius: 1.1rem;
+    min-height: 3.2rem;
+    background: rgb(15 27 44 / 0.72);
+    box-shadow:
+        inset 0 1px 0 rgb(255 255 255 / 0.04),
+        inset 0 -12px 24px rgb(2 6 23 / 0.12);
+    transition:
+        border-color 180ms ease,
+        box-shadow 180ms ease,
+        transform 180ms ease;
+}
+
+.pk-admin-login-body .fi-input-wrp:focus-within {
+    border-color: rgb(15 157 138 / 0.88);
+    box-shadow:
+        0 0 0 1px rgb(15 157 138 / 0.9),
+        0 0 0 4px rgb(15 157 138 / 0.16),
+        0 18px 34px rgb(11 47 79 / 0.16);
+    transform: translateY(-1px);
+}
+
+.pk-admin-login-body .fi-input-wrp-content-ctn {
+    position: relative;
+}
+
+.pk-admin-login-body .fi-input,
+.pk-admin-login-body #form\.email,
+.pk-admin-login-body #form\.password {
+    min-height: 3.2rem;
+    color: #f8fafc;
+    font-size: 0.96rem;
+}
+
+.pk-admin-login-body #form\.email,
+.pk-admin-login-body #form\.password {
+    padding-left: 2.8rem;
+}
+
+.pk-admin-login-body #form\.password {
+    padding-right: 3.15rem;
+}
+
+.pk-admin-login-body .fi-input::placeholder {
+    color: rgb(148 163 184 / 0.84);
+}
+
+.pk-admin-login-body .fi-input-wrp:has(#form\.email)::before,
+.pk-admin-login-body .fi-input-wrp:has(#form\.password)::before {
+    top: 50%;
+    left: 1rem;
+    width: 1.05rem;
+    height: 1.05rem;
+    opacity: 0.74;
+    transform: translateY(-50%);
+}
+
+.pk-admin-login-body .fi-input-wrp-suffix {
+    padding-right: 0.55rem;
+}
+
+.pk-admin-login-body .fi-input-wrp .fi-icon-btn {
+    color: #cbd5e1;
+    border-left: 0;
+    box-shadow: none;
+}
+
+.pk-admin-login-body .fi-input-wrp .fi-icon-btn:hover {
+    color: #f8fafc;
+    background: rgb(255 255 255 / 0.08);
+}
+
+.pk-admin-login-body .fi-fo-field-wrp-error-message,
+.pk-admin-login-body .fi-fo-field-wrp-error-list {
+    color: #fda4af;
+}
+
+.pk-admin-login-body .fi-fo-field:has(.fi-checkbox-input) {
+    margin-top: 0.15rem;
+    padding: 0.95rem 1rem;
+    border: 1px solid rgb(148 163 184 / 0.16);
+    border-radius: 1rem;
+    background: linear-gradient(180deg, rgb(255 255 255 / 0.06), rgb(255 255 255 / 0.03));
+    backdrop-filter: blur(8px);
+}
+
+.pk-admin-login-body .fi-fo-field:has(.fi-checkbox-input):hover {
+    background: linear-gradient(180deg, rgb(255 255 255 / 0.08), rgb(255 255 255 / 0.04));
+}
+
+.pk-admin-login-body .fi-fo-field:has(.fi-checkbox-input) .fi-fo-field-label {
+    color: #cbd5e1;
+}
+
+.pk-admin-login-body .fi-checkbox-input {
+    border-color: rgb(148 163 184 / 0.48);
+    background: rgb(15 23 42 / 0.32);
+}
+
+.pk-admin-login-body .fi-checkbox-input:checked {
+    border-color: #0f9d8a;
+    background-color: #0f9d8a;
+}
+
+.pk-admin-login-body .fi-ac,
+.pk-admin-login-body .fi-ac .fi-btn,
+.pk-admin-login-body .fi-btn.fi-color-primary {
+    width: 100%;
+}
+
+.pk-admin-login-body .fi-ac .fi-btn,
+.pk-admin-login-body .fi-btn.fi-color-primary {
+    min-height: 3.25rem;
+    justify-content: center;
+    border: 0;
+    border-radius: 1rem;
+    background: linear-gradient(135deg, #10b981 0%, #0f9d8a 45%, #2563eb 100%);
+    box-shadow:
+        0 16px 30px rgb(15 157 138 / 0.24),
+        0 10px 24px rgb(37 99 235 / 0.14);
+    color: #f8fafc;
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    transition:
+        transform 180ms ease,
+        box-shadow 180ms ease,
+        filter 180ms ease;
+}
+
+.pk-admin-login-body .fi-ac .fi-btn:hover,
+.pk-admin-login-body .fi-btn.fi-color-primary:hover {
+    transform: translateY(-1px);
+    box-shadow:
+        0 18px 34px rgb(15 157 138 / 0.28),
+        0 12px 26px rgb(37 99 235 / 0.18);
+    filter: saturate(1.05);
+}
+
+.pk-admin-login-body .fi-link {
+    color: #7dd3fc;
+}
+
+.pk-admin-login-body .fi-link:hover {
+    color: #a5f3fc;
+}
+
+@media (max-width: 640px) {
+    .pk-admin-login-body {
+        padding: 0.9rem;
+    }
+
+    .pk-admin-login-body .fi-simple-main-ctn {
+        padding: 0;
+    }
+
+    .pk-admin-login-card {
+        max-width: 100%;
+        padding: 1.25rem;
+        border-radius: 1.6rem;
+    }
+
+    .pk-admin-login-card__logo {
+        min-width: 5.25rem;
+        min-height: 5.25rem;
+        border-radius: 1.2rem;
+    }
+
+    .pk-admin-login-card__logo-image {
+        width: 76px;
+        height: 76px;
+    }
+
+    .pk-admin-login-card__title,
+    .pk-admin-login-body .pk-admin-login-card__title {
+        font-size: 1.72rem;
+    }
+}
+
+/* Final admin login compact centered layout */
+
+.pk-admin-login-body {
+    min-height: 100dvh;
+    height: 100dvh;
+    overflow: hidden;
+}
+
+.pk-admin-login-body .fi-simple-layout {
+    min-height: 100dvh;
+    height: 100dvh;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    padding: clamp(0.75rem, 2vh, 1.25rem);
+}
+
+.pk-admin-login-body .fi-simple-main-ctn {
+    min-height: 0;
+    height: auto;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    overflow: visible;
+    width: 100%;
+    padding: 0;
+}
+
+.pk-admin-login-body .fi-simple-main {
+    width: min(100%, 29rem);
+    max-width: 29rem;
+    height: auto;
+    max-height: calc(100dvh - 2rem);
+    overflow: visible;
+    margin-inline: auto;
+}
+
+.pk-admin-login-body .fi-simple-page {
+    width: 100%;
+    height: auto;
+    max-height: none;
+    overflow: visible;
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    border-radius: 0 !important;
+    padding: 0;
+}
+
+.pk-admin-login-body .fi-simple-page::before,
+.pk-admin-login-body .fi-simple-page::after {
+    display: none !important;
+    content: none !important;
+}
+
+.pk-admin-login-body .fi-simple-page-content {
+    padding: 0 !important;
+    background: transparent !important;
+    overflow: visible;
+}
+
+.pk-admin-login-body .pk-admin-login-card {
+    width: 100%;
+    max-width: 29rem;
+    margin: 0 auto;
+    padding: clamp(1.15rem, 2.4vh, 1.6rem) clamp(1.2rem, 2.8vw, 1.75rem);
+    border-radius: 1.75rem;
+    height: auto;
+    max-height: calc(100dvh - 2rem);
+    overflow: visible;
+    box-sizing: border-box;
+}
+
+.pk-admin-login-body .pk-admin-login-card__logo {
+    min-width: 4.85rem;
+    min-height: 4.85rem;
+    padding: 0.55rem;
+    border-radius: 1.15rem;
+    margin-bottom: 0.85rem;
+}
+
+.pk-admin-login-body .pk-admin-login-card__logo-image {
+    width: 64px;
+    height: 64px;
+}
+
+.pk-admin-login-body .pk-admin-login-card__title {
+    font-size: clamp(1.55rem, 2.4vw, 1.9rem);
+    line-height: 1.08;
+    margin: 0;
+}
+
+.pk-admin-login-body .pk-admin-login-card__description {
+    margin-top: 0.45rem;
+    font-size: 0.88rem;
+    line-height: 1.5;
+    max-width: 22rem;
+}
+
+.pk-admin-login-body .pk-admin-login-card__intro {
+    margin-bottom: 1rem;
+}
+
+.pk-admin-login-body .fi-fo-field {
+    margin-bottom: 0.75rem;
+}
+
+.pk-admin-login-body .fi-fo-field-label-col {
+    margin-bottom: 0.35rem;
+}
+
+.pk-admin-login-body .fi-fo-field-label,
+.pk-admin-login-body .fi-fo-field-label-content,
+.pk-admin-login-body .fi-fo-field-label-text {
+    font-size: 0.84rem;
+}
+
+.pk-admin-login-body .fi-input,
+.pk-admin-login-body #form\.email,
+.pk-admin-login-body #form\.password {
+    min-height: 2.85rem;
+    font-size: 0.9rem;
+}
+
+.pk-admin-login-body .fi-input-wrp {
+    border-radius: 0.95rem;
+}
+
+.pk-admin-login-body .fi-input-wrp-suffix {
+    padding-right: 0.35rem;
+}
+
+.pk-admin-login-body .fi-input-wrp .fi-icon-btn {
+    width: 2.4rem;
+    height: 2.4rem;
+    border-left: 0 !important;
+    background: transparent;
+}
+
+.pk-admin-login-body .fi-ac .fi-btn,
+.pk-admin-login-body .fi-btn.fi-color-primary {
+    min-height: 2.95rem;
+    border-radius: 0.95rem;
+    font-size: 0.78rem;
+    letter-spacing: 0.13em;
+}
+
+.pk-admin-login-body .pk-admin-login-card__footnote {
+    margin-top: 0.7rem;
+    font-size: 0.76rem;
+    line-height: 1.45;
+}
+
+@media (max-height: 760px) {
+    .pk-admin-login-body .fi-simple-layout {
+        padding: 0.75rem;
+    }
+
+    .pk-admin-login-body .pk-admin-login-card {
+        padding: 1rem 1.1rem;
+    }
+
+    .pk-admin-login-body .pk-admin-login-card__logo {
+        min-width: 4.4rem;
+        min-height: 4.4rem;
+        margin-bottom: 0.7rem;
+    }
+
+    .pk-admin-login-body .pk-admin-login-card__logo-image {
+        width: 56px;
+        height: 56px;
+    }
+
+    .pk-admin-login-body .pk-admin-login-card__title {
+        font-size: 1.45rem;
+    }
+
+    .pk-admin-login-body .pk-admin-login-card__description {
+        font-size: 0.82rem;
+    }
+
+    .pk-admin-login-body .fi-fo-field {
+        margin-bottom: 0.6rem;
+    }
+
+    .pk-admin-login-body .fi-input,
+    .pk-admin-login-body #form\.email,
+    .pk-admin-login-body #form\.password {
+        min-height: 2.65rem;
+    }
+
+    .pk-admin-login-body .fi-ac .fi-btn,
+    .pk-admin-login-body .fi-btn.fi-color-primary {
+        min-height: 2.75rem;
+    }
+
+    .pk-admin-login-body .pk-admin-login-card__footnote {
+        font-size: 0.72rem;
+    }
+}
+
+@media (max-width: 640px) {
+    .pk-admin-login-body {
+        width: 100%;
+        max-width: 100%;
+        height: 100dvh;
+        overflow: hidden;
+    }
+
+    .pk-admin-login-body .fi-simple-layout {
+        width: 100%;
+        max-width: 100%;
+        padding: 0.85rem;
+    }
+
+    .pk-admin-login-body .fi-simple-main {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .pk-admin-login-body .pk-admin-login-card {
+        max-width: 100%;
+        padding: 1rem 1rem 1.1rem;
+        border-radius: 1.5rem;
+    }
+}
