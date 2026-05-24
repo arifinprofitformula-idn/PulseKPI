@@ -33,7 +33,9 @@ class KpiAssignmentPolicy
         }
 
         if ($user->canAssessDirectReports()) {
-            return $assignment->employee !== null && $user->manages($assignment->employee);
+            return $assignment->employee !== null
+                && (! $user->isSupervisor() || $assignment->employee->hasRole(SystemRole::EMPLOYEE->value))
+                && $user->manages($assignment->employee);
         }
 
         return $user->is($assignment->employee);

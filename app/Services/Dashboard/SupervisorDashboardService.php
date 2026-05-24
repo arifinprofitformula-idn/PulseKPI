@@ -2,6 +2,8 @@
 
 namespace App\Services\Dashboard;
 
+use App\Models\KpiAssessment;
+use App\Models\KpiAssignment;
 use App\Models\User;
 use App\Support\KpiStatusBadge;
 
@@ -53,25 +55,12 @@ class SupervisorDashboardService extends ManagerDashboardService
             ],
             'pendingQueue' => $this->assessmentQueueQuery($user, 6)
                 ->get()
-                ->map(fn ($assessment): array => [
-                    'employee' => $assessment->employee?->name ?? '-',
-                    'period' => $assessment->assignment?->period?->name ?? '-',
-                    'template' => $assessment->assignment?->template?->name ?? '-',
-                    'status' => KpiStatusBadge::assessmentLabel($assessment->status),
-                ])
+                ->map(fn (KpiAssessment $assessment): array => $this->mapPendingQueueItem($assessment))
                 ->all(),
             'recentAssessments' => $this->teamOverviewQuery($user, 6)
                 ->get()
-                ->filter(fn ($assignment): bool => $assignment->assessment !== null)
-                ->map(fn ($assignment): array => [
-                    'employee' => $assignment->employee?->name ?? '-',
-                    'period' => $assignment->period?->name ?? '-',
-                    'status' => KpiStatusBadge::assessmentLabel($assignment->assessment->status),
-                    'score' => filled($assignment->assessment->final_score)
-                        ? number_format((float) $assignment->assessment->final_score, 2)
-                        : '-',
-                    'updated_at' => $assignment->assessment->updated_at?->diffForHumans() ?? '-',
-                ])
+                ->filter(fn (KpiAssignment $assignment): bool => $assignment->assessment !== null)
+                ->map(fn (KpiAssignment $assignment): array => $this->mapRecentAssessmentItem($assignment))
                 ->values()
                 ->all(),
         ];
@@ -80,5 +69,41 @@ class SupervisorDashboardService extends ManagerDashboardService
     public function makeCacheKey(User $user, string $segment): string
     {
         return sprintf('supervisor-dashboard:%s:%s', $user->getKey(), $segment);
+    }
+
+    /**
+     * @return array{employee: string, period: string, template: string, status: string}
+     */
+    protected function mapPendingQueueItem(KpiAssessment $assessment): array
+    {
+        $employee = $assessment->employee;
+        $assignment = $assessment->assignment;
+        $period = $assignment?->period;
+        $template = $assignment?->template;
+
+        return [
+            'employee' => $employee instanceof User ? $employee->name : '-',
+            'period' => $period->name,
+            'template' => $template->name,
+            'status' => KpiStatusBadge::assessmentLabel($assessment->status),
+        ];
+    }
+
+    /**
+     * @return array{employee: string, period: string, status: string, score: string, updated_at: string}
+     */
+    protected function mapRecentAssessmentItem(KpiAssignment $assignment): array
+    {
+        $assessment = $assignment->assessment;
+
+        return [
+            'employee' => $assignment->employee instanceof User ? $assignment->employee->name : '-',
+            'period' => $assignment->period->name,
+            'status' => KpiStatusBadge::assessmentLabel($assessment->status),
+            'score' => filled($assessment->final_score)
+                ? number_format((float) $assessment->final_score, 2)
+                : '-',
+            'updated_at' => $assessment->updated_at?->diffForHumans() ?? '-',
+        ];
     }
 }

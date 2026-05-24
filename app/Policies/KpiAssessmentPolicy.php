@@ -45,13 +45,18 @@ class KpiAssessmentPolicy
             ], true);
         }
 
+        if ($assessment->employee !== null && $user->is($assessment->employee)) {
+            return true;
+        }
+
         if ($user->canAssessDirectReports()) {
             return $assessment->employee !== null
+                && (! $user->isSupervisor() || $assessment->employee->hasRole(SystemRole::EMPLOYEE->value))
                 && $user->isDirectSupervisorOf($assessment->employee)
                 && ($assessment->assessor_id === null || $assessment->assessor_id === $user->getKey());
         }
 
-        return $assessment->employee !== null && $user->is($assessment->employee);
+        return false;
     }
 
     public function exportPdf(User $user, KpiAssessment $assessment): bool
@@ -87,6 +92,10 @@ class KpiAssessmentPolicy
             return false;
         }
 
+        if ($user->isSupervisor() && ! $assignment->employee->hasRole(SystemRole::EMPLOYEE->value)) {
+            return false;
+        }
+
         if ($user->hasRole(SystemRole::SUPER_ADMIN->value)) {
             return true;
         }
@@ -106,6 +115,7 @@ class KpiAssessmentPolicy
 
         if ($user->canAssessDirectReports()) {
             return $assessment->employee !== null
+                && (! $user->isSupervisor() || $assessment->employee->hasRole(SystemRole::EMPLOYEE->value))
                 && ! $user->is($assessment->employee)
                 && $user->isDirectSupervisorOf($assessment->employee)
                 && $assessment->assessor_id === $user->getKey();

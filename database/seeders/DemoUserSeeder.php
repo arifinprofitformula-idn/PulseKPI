@@ -23,9 +23,22 @@ class DemoUserSeeder extends Seeder
         $hrdManagerPosition = Position::query()->where('code', 'HRD-MGR')->first();
         $hrdStaffPosition = Position::query()->where('code', 'HRD-STAFF')->first();
         $opsManagerPosition = Position::query()->where('code', 'OPS-MGR')->first();
+        $opsLeadPosition = Position::query()->where('code', 'OPS-LEAD')->first();
         $opsStaffPosition = Position::query()->where('code', 'OPS-STAFF')->first();
 
         $accounts = [
+            [
+                'role' => SystemRole::SUPER_ADMIN,
+                'name' => 'Demo Super Admin',
+                'email' => 'superadmin@demo.test',
+                'employee_code' => 'EMP-SAD-001',
+                'division_id' => $corpDivision?->getKey(),
+                'department_id' => $hrdDepartment?->getKey(),
+                'position_id' => $hrdManagerPosition?->getKey(),
+                'employment_status' => 'active',
+                'joined_at' => '2020-01-01',
+                'supervisor_email' => null,
+            ],
             [
                 'role' => SystemRole::HRD,
                 'name' => 'Demo HRD',
@@ -36,6 +49,7 @@ class DemoUserSeeder extends Seeder
                 'position_id' => $hrdStaffPosition?->getKey(),
                 'employment_status' => 'active',
                 'joined_at' => '2023-01-01',
+                'supervisor_email' => null,
             ],
             [
                 'role' => SystemRole::MANAGER,
@@ -47,6 +61,19 @@ class DemoUserSeeder extends Seeder
                 'position_id' => $opsManagerPosition?->getKey(),
                 'employment_status' => 'active',
                 'joined_at' => '2022-06-01',
+                'supervisor_email' => null,
+            ],
+            [
+                'role' => SystemRole::SUPERVISOR,
+                'name' => 'Demo Supervisor',
+                'email' => 'supervisor@demo.test',
+                'employee_code' => 'EMP-SPV-001',
+                'division_id' => $opsDivision?->getKey(),
+                'department_id' => $opsDepartment?->getKey(),
+                'position_id' => $opsLeadPosition?->getKey(),
+                'employment_status' => 'active',
+                'joined_at' => '2022-09-01',
+                'supervisor_email' => 'manager@demo.test',
             ],
             [
                 'role' => SystemRole::EMPLOYEE,
@@ -58,6 +85,7 @@ class DemoUserSeeder extends Seeder
                 'position_id' => $opsStaffPosition?->getKey(),
                 'employment_status' => 'active',
                 'joined_at' => '2023-03-01',
+                'supervisor_email' => 'supervisor@demo.test',
             ],
             [
                 'role' => SystemRole::APPROVER,
@@ -69,10 +97,9 @@ class DemoUserSeeder extends Seeder
                 'position_id' => $hrdManagerPosition?->getKey(),
                 'employment_status' => 'active',
                 'joined_at' => '2021-01-01',
+                'supervisor_email' => null,
             ],
         ];
-
-        $manager = null;
 
         foreach ($accounts as $account) {
             $role = $account['role'];
@@ -93,13 +120,20 @@ class DemoUserSeeder extends Seeder
             );
 
             $user->syncRoles([$role->value]);
+        }
 
-            if ($role === SystemRole::MANAGER) {
-                $manager = $user;
+        foreach ($accounts as $account) {
+            if ($account['supervisor_email'] === null) {
+                continue;
             }
 
-            if ($role === SystemRole::EMPLOYEE && $manager !== null) {
-                $user->update(['supervisor_id' => $manager->getKey()]);
+            $user = User::query()->where('email', $account['email'])->first();
+            $supervisorId = User::query()
+                ->where('email', $account['supervisor_email'])
+                ->value('id');
+
+            if ($user !== null) {
+                $user->update(['supervisor_id' => $supervisorId]);
             }
         }
 
@@ -107,9 +141,11 @@ class DemoUserSeeder extends Seeder
         $this->command->table(
             ['Role', 'Email', 'Password'],
             [
-                ['Super Admin', 'lihat config pulsekpi.super_admin', '(dari config)'],
+                ['Super Admin', (string) config('pulsekpi.super_admin.email'), '(dari config)'],
+                ['Demo Super Admin', 'superadmin@demo.test', 'password'],
                 ['HRD', 'hrd@demo.test', 'password'],
                 ['Manager', 'manager@demo.test', 'password'],
+                ['Supervisor', 'supervisor@demo.test', 'password'],
                 ['Employee', 'employee@demo.test', 'password'],
                 ['Approver', 'approver@demo.test', 'password'],
             ],

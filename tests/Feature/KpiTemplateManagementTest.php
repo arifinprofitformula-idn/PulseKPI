@@ -434,7 +434,7 @@ it('hrd can access the kpi template list page', function () {
 
     $this->get('/admin/kpi-templates')
         ->assertOk()
-        ->assertSee('KPI Templates');
+        ->assertSee('Template KPI');
 });
 
 it('dashboard widget loads for hrd users', function () {

@@ -13,11 +13,21 @@ use App\Models\KpiAssignment;
 use App\Models\KpiReportExport;
 use App\Models\KpiTemplate;
 use App\Models\User;
+use DateTimeInterface;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Spatie\Activitylog\Models\Activity;
 
+/**
+ * @phpstan-type DashboardActivityItem array{
+ *     title: string,
+ *     description: string,
+ *     occurred_at: string,
+ *     timestamp: int
+ * }
+ */
 class HrdDashboardService
 {
     private const CACHE_TTL_SECONDS = 120;
@@ -231,11 +241,7 @@ class HrdDashboardService
                     ->orderByDesc('average_score')
                     ->limit($limit)
                     ->get()
-                    ->map(fn (object $row): array => [
-                        'name' => (string) $row->division_name,
-                        'average_score' => number_format((float) $row->average_score, 2),
-                        'assessment_count' => (int) $row->assessment_count,
-                    ]);
+                    ->map(fn (KpiAssessment $row): array => $this->mapDivisionPerformanceRow($row));
             }
         );
     }
@@ -326,7 +332,7 @@ class HrdDashboardService
 
     protected function formatActivityDescription(Activity $activity): string
     {
-        $actor = $activity->causer?->name ?? 'Sistem';
+        $actor = $activity->causer?->getAttribute('name') ?? 'Sistem';
         $description = trim((string) ($activity->description ?? $activity->event ?? ''));
 
         if ($description === '') {
@@ -351,47 +357,23 @@ class HrdDashboardService
             ->latest('updated_at')
             ->limit($limit)
             ->get()
-            ->map(fn (KpiAssessment $assessment): array => [
-                'title' => sprintf(
-                    'Assessment %s',
-                    $assessment->status instanceof KpiAssessmentStatus
-                        ? $assessment->status->label()
-                        : KpiAssessmentStatus::from((string) $assessment->status)->label()
-                ),
-                'description' => sprintf(
-                    '%s pada periode %s',
-                    $assessment->employee?->name ?? 'Karyawan',
-                    $assessment->assignment?->period?->name ?? 'tanpa periode'
-                ),
-                'occurred_at' => $assessment->updated_at?->diffForHumans() ?? '-',
-                'timestamp' => $assessment->updated_at?->timestamp ?? 0,
-            ]);
+            ->map(fn (KpiAssessment $assessment): array => $this->mapAssessmentActivityItem($assessment));
 
         $exportItems = $this->latestExportsQuery($user, $limit)
             ->get()
-            ->map(fn (KpiReportExport $export): array => [
-                'title' => sprintf('Export %s', $export->status->label()),
-                'description' => $export->file_name ?: sprintf('Permintaan %s', $export->type->label()),
-                'occurred_at' => $export->created_at?->diffForHumans() ?? '-',
-                'timestamp' => $export->created_at?->timestamp ?? 0,
-            ]);
+            ->map(fn (KpiReportExport $export): array => $this->mapExportActivityItem($export));
 
         $templateItems = KpiTemplate::query()
             ->whereNotNull('published_at')
             ->latest('published_at')
             ->limit($limit)
             ->get()
-            ->map(fn (KpiTemplate $template): array => [
-                'title' => 'Template KPI dipublikasikan',
-                'description' => $template->name,
-                'occurred_at' => $template->published_at?->diffForHumans() ?? '-',
-                'timestamp' => $template->published_at?->timestamp ?? 0,
-            ]);
+            ->map(fn (KpiTemplate $template): array => $this->mapTemplateActivityItem($template));
 
         return $assessmentItems
             ->concat($exportItems)
             ->concat($templateItems)
-            ->sortByDesc('timestamp')
+            ->sortByDesc(fn (array $item): int => $item['timestamp'])
             ->take($limit)
             ->values()
             ->map(fn (array $item): array => [
@@ -399,5 +381,101 @@ class HrdDashboardService
                 'description' => $item['description'],
                 'occurred_at' => $item['occurred_at'],
             ]);
+    }
+
+    /**
+     * @return array{name: string, average_score: string, assessment_count: int}
+     */
+    protected function mapDivisionPerformanceRow(KpiAssessment $row): array
+    {
+        return [
+            'name' => (string) $row->getAttribute('division_name'),
+            'average_score' => number_format((float) $row->getAttribute('average_score'), 2),
+            'assessment_count' => (int) $row->getAttribute('assessment_count'),
+        ];
+    }
+
+    /**
+     * @return DashboardActivityItem
+     */
+    protected function mapAssessmentActivityItem(KpiAssessment $assessment): array
+    {
+        $employee = $assessment->employee;
+        $assignment = $assessment->assignment;
+        $period = $assignment?->period;
+
+        return [
+            'title' => sprintf('Assessment %s', $this->assessmentStatusLabel($assessment)),
+            'description' => sprintf(
+                '%s pada periode %s',
+                $employee instanceof User ? $employee->name : 'Karyawan',
+                $period instanceof Model ? (string) $period->getAttribute('name') : 'tanpa periode'
+            ),
+            'occurred_at' => $this->humanReadableDate($assessment->updated_at),
+            'timestamp' => $this->timestampFrom($assessment->updated_at),
+        ];
+    }
+
+    /**
+     * @return DashboardActivityItem
+     */
+    protected function mapExportActivityItem(KpiReportExport $export): array
+    {
+        return [
+            'title' => sprintf('Export %s', $export->status->label()),
+            'description' => $export->file_name ?: sprintf('Permintaan %s', $export->type->label()),
+            'occurred_at' => $this->humanReadableDate($export->created_at),
+            'timestamp' => $this->timestampFrom($export->created_at),
+        ];
+    }
+
+    /**
+     * @return DashboardActivityItem
+     */
+    protected function mapTemplateActivityItem(KpiTemplate $template): array
+    {
+        $publishedAt = $template->getAttribute('published_at');
+
+        return [
+            'title' => 'Template KPI dipublikasikan',
+            'description' => $template->name,
+            'occurred_at' => $this->humanReadableDate($publishedAt),
+            'timestamp' => $this->timestampFrom($publishedAt),
+        ];
+    }
+
+    protected function assessmentStatusLabel(KpiAssessment $assessment): string
+    {
+        $status = $assessment->getAttribute('status');
+
+        if ($status instanceof KpiAssessmentStatus) {
+            return $status->label();
+        }
+
+        return KpiAssessmentStatus::from((string) $status)->label();
+    }
+
+    protected function humanReadableDate(mixed $value): string
+    {
+        if ($value instanceof DateTimeInterface && method_exists($value, 'diffForHumans')) {
+            return $value->diffForHumans();
+        }
+
+        return '-';
+    }
+
+    protected function timestampFrom(mixed $value): int
+    {
+        if ($value instanceof DateTimeInterface) {
+            return $value->getTimestamp();
+        }
+
+        if (is_string($value)) {
+            $timestamp = strtotime($value);
+
+            return $timestamp !== false ? $timestamp : 0;
+        }
+
+        return 0;
     }
 }

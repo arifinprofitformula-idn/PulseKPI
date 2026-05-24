@@ -144,12 +144,15 @@ class KpiAssessmentResource extends Resource
         }
 
         if ($user->canAssessDirectReports()) {
-            return $query->whereHas(
-                'employee',
-                fn (Builder $builder) => $builder
+            return $query->whereHas('employee', function (Builder $builder) use ($user): void {
+                $builder
                     ->where('supervisor_id', $user->getKey())
-                    ->whereKeyNot($user->getKey())
-            );
+                    ->whereKeyNot($user->getKey());
+
+                if ($user->isSupervisor()) {
+                    $builder->role(SystemRole::EMPLOYEE->value);
+                }
+            });
         }
 
         return $query->whereRaw('1 = 0');

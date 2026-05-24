@@ -155,7 +155,9 @@ class KpiAssignmentResource extends Resource
         }
 
         if ($user->canAssessDirectReports()) {
-            return $record->employee !== null && $user->isDirectSupervisorOf($record->employee);
+            return $record->employee !== null
+                && (! $user->isSupervisor() || $record->employee->hasRole(SystemRole::EMPLOYEE->value))
+                && $user->isDirectSupervisorOf($record->employee);
         }
 
         return $record->employee !== null && $user->is($record->employee);
@@ -185,10 +187,13 @@ class KpiAssignmentResource extends Resource
         }
 
         if ($user->canAssessDirectReports()) {
-            return $query->whereHas(
-                'employee',
-                fn (Builder $q) => $q->where('supervisor_id', $user->getKey())
-            );
+            return $query->whereHas('employee', function (Builder $q) use ($user): void {
+                $q->where('supervisor_id', $user->getKey());
+
+                if ($user->isSupervisor()) {
+                    $q->role(SystemRole::EMPLOYEE->value);
+                }
+            });
         }
 
         return $query->where('employee_id', $user->getKey());
