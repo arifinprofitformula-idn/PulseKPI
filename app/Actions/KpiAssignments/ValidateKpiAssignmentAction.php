@@ -90,7 +90,10 @@ class ValidateKpiAssignmentAction
     public function employeeBaseQuery(): Builder
     {
         return User::query()
-            ->role(SystemRole::EMPLOYEE->value)
+            ->whereHas('roles', fn (Builder $query) => $query->whereIn('name', [
+                SystemRole::EMPLOYEE->value,
+                SystemRole::SUPERVISOR->value,
+            ]))
             ->where(function (Builder $query): void {
                 $query->whereNull('employment_status')
                     ->orWhereNotIn('employment_status', self::INVALID_EMPLOYMENT_STATUSES);
@@ -99,7 +102,8 @@ class ValidateKpiAssignmentAction
 
     public function isAssignableEmployee(User $employee, KpiPeriod $period): bool
     {
-        if (! $employee->hasRole(SystemRole::EMPLOYEE->value)) {
+        if (! $employee->hasRole(SystemRole::EMPLOYEE->value)
+            && ! $employee->hasRole(SystemRole::SUPERVISOR->value)) {
             return false;
         }
 

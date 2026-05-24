@@ -69,6 +69,7 @@ it('user organization relationships work correctly', function () {
         'department_id' => $department->getKey(),
     ]);
     $supervisor = User::factory()->create();
+    $supervisor->assignRole(SystemRole::SUPERVISOR->value);
     $subordinate = User::factory()->create([
         'division_id' => $division->getKey(),
         'department_id' => $department->getKey(),

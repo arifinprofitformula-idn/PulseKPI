@@ -113,6 +113,14 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
     }
 
     /**
+     * @return HasMany<User, $this>
+     */
+    public function directReports(): HasMany
+    {
+        return $this->subordinates();
+    }
+
+    /**
      * @return HasMany<KpiAssignment, $this>
      */
     public function kpiAssignments(): HasMany
@@ -154,11 +162,28 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
 
     public function manages(User $user): bool
     {
+        return $this->isDirectSupervisorOf($user);
+    }
+
+    public function isDirectSupervisorOf(User $user): bool
+    {
         return $user->supervisor_id === $this->getKey();
     }
 
     public function isManager(): bool
     {
         return $this->hasRole(SystemRole::MANAGER->value);
+    }
+
+    public function isSupervisor(): bool
+    {
+        return $this->hasRole(SystemRole::SUPERVISOR->value);
+    }
+
+    public function canAssessDirectReports(): bool
+    {
+        return $this->hasRole(SystemRole::SUPER_ADMIN->value)
+            || $this->isManager()
+            || $this->isSupervisor();
     }
 }

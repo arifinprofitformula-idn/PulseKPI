@@ -20,7 +20,7 @@ it('renders the admin login page with admin-specific branding copy', function ()
     $this->get('/admin/login')
         ->assertOk()
         ->assertSee(config('branding.name'))
-        ->assertSee('Masuk ke Admin Panel')
+        ->assertSee('Akses Admin PulseKPI')
         ->assertSee('Secure Admin');
 });
 
@@ -36,6 +36,21 @@ it('allows a super admin to access the admin panel', function () {
 it('allows a user with the panel permission to access the admin panel', function () {
     $user = User::factory()->create();
     $user->givePermissionTo(SystemPermission::ACCESS_ADMIN_PANEL->value);
+
+    $this->actingAs($user)
+        ->get('/admin')
+        ->assertOk();
+});
+
+it('allows a Supervisor to access the admin panel through seeded role permissions', function () {
+    $user = User::factory()->create();
+    $user->assignRole(SystemRole::SUPERVISOR->value);
+
+    expect($user->can(SystemPermission::ACCESS_ADMIN_PANEL->value))->toBeTrue()
+        ->and($user->can(SystemPermission::SUBMIT_KPI_ASSESSMENT->value))->toBeTrue()
+        ->and($user->can(SystemPermission::VIEW_REPORTS->value))->toBeFalse()
+        ->and($user->can(SystemPermission::REVIEW_KPI_ASSESSMENT->value))->toBeFalse()
+        ->and($user->can(SystemPermission::APPROVE_KPI_ASSESSMENT->value))->toBeFalse();
 
     $this->actingAs($user)
         ->get('/admin')

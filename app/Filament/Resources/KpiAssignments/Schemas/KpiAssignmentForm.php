@@ -49,7 +49,7 @@ class KpiAssignmentForm
                                     ->preload()
                                     ->required(),
                                 Select::make('employee_id')
-                                    ->label('Employee')
+                                    ->label('Penerima KPI')
                                     ->options(fn (): array => app(ValidateKpiAssignmentAction::class)
                                         ->employeeBaseQuery()
                                         ->orderBy('name')

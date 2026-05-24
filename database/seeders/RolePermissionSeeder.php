@@ -36,6 +36,10 @@ class RolePermissionSeeder extends Seeder
                 'review kpi assessment',
                 'view reports',
             ],
+            SystemRole::SUPERVISOR->value => [
+                'access admin panel',
+                'submit kpi assessment',
+            ],
             SystemRole::EMPLOYEE->value => [
                 'submit kpi assessment',
             ],

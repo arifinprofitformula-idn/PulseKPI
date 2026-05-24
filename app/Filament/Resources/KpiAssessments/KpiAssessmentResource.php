@@ -143,7 +143,7 @@ class KpiAssessmentResource extends Resource
             return $query;
         }
 
-        if ($user->isManager()) {
+        if ($user->canAssessDirectReports()) {
             return $query->whereHas(
                 'employee',
                 fn (Builder $builder) => $builder

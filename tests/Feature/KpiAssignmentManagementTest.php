@@ -4,10 +4,12 @@ use App\Actions\KpiAssessments\CreateKpiAssessmentAction;
 use App\Actions\KpiAssignments\AssignKpiTemplateAction;
 use App\Actions\KpiAssignments\BulkAssignKpiTemplateAction;
 use App\Actions\KpiAssignments\CancelKpiAssignmentAction;
+use App\Actions\KpiAssignments\ValidateKpiAssignmentAction;
 use App\Enums\KpiAssignmentStatus;
 use App\Enums\SystemRole;
 use App\Events\KpiAssigned;
 use App\Events\KpiAssignmentCancelled;
+use App\Filament\Resources\KpiAssignments\KpiAssignmentResource;
 use App\Models\Division;
 use App\Models\KpiPeriod;
 use App\Models\KpiScoreRule;
@@ -83,6 +85,18 @@ it('hrd can assign a published active template to an employee', function () {
         ->and($assignment->kpi_template_id)->toBe($template->getKey());
 });
 
+it('hrd can assign a published active template to a Supervisor', function () {
+    $hrd = makeUser(SystemRole::HRD->value);
+    $supervisor = makeUser(SystemRole::SUPERVISOR->value);
+    $period = makeActivePeriod();
+    $template = makePublishedTemplate();
+
+    $assignment = app(AssignKpiTemplateAction::class)->execute($period, $template, $supervisor, $hrd);
+
+    expect($assignment->status)->toBe(KpiAssignmentStatus::ASSIGNED)
+        ->and($assignment->employee_id)->toBe($supervisor->getKey());
+});
+
 // ─── HRD cannot assign draft template ────────────────────────────────────────
 
 it('hrd cannot assign a draft template', function () {
@@ -126,6 +140,32 @@ it('duplicate assignment for same period and employee is rejected', function () 
         ->toThrow(ValidationException::class);
 });
 
+it('kpi assignment to Supervisor passes validation', function () {
+    $supervisor = makeUser(SystemRole::SUPERVISOR->value);
+    $period = makeActivePeriod();
+    $template = makePublishedTemplate();
+
+    $resolved = app(ValidateKpiAssignmentAction::class)
+        ->execute($period, $template, $supervisor);
+
+    expect($resolved['employee']->is($supervisor))->toBeTrue();
+});
+
+it('kpi assignment to hrd super admin approver and manager fails validation', function (string $role) {
+    $user = makeUser($role);
+    $period = makeActivePeriod();
+    $template = makePublishedTemplate();
+
+    expect(fn () => app(ValidateKpiAssignmentAction::class)
+        ->execute($period, $template, $user))
+        ->toThrow(ValidationException::class);
+})->with([
+    SystemRole::HRD->value,
+    SystemRole::SUPER_ADMIN->value,
+    SystemRole::APPROVER->value,
+    SystemRole::MANAGER->value,
+]);
+
 // ─── assigned_at and assigned_by are set ─────────────────────────────────────
 
 it('assigned_at and assigned_by are set on assignment', function () {
@@ -163,6 +203,24 @@ it('manager can view direct subordinate assignment', function () {
     expect($policy->view($manager, $assignment))->toBeTrue();
 });
 
+it('manager can see assignment of a direct Supervisor report', function () {
+    $manager = makeUser(SystemRole::MANAGER->value);
+    $supervisor = makeUser(SystemRole::SUPERVISOR->value);
+    $supervisor->update(['supervisor_id' => $manager->getKey()]);
+    $period = makeActivePeriod();
+    $template = makePublishedTemplate();
+    $hrd = makeUser(SystemRole::HRD->value);
+
+    $assignment = app(AssignKpiTemplateAction::class)->execute($period, $template, $supervisor, $hrd);
+
+    test()->actingAs($manager);
+
+    expect(KpiAssignmentResource::canViewAny())->toBeTrue()
+        ->and(KpiAssignmentResource::canView($assignment))->toBeTrue()
+        ->and(KpiAssignmentResource::getEloquentQuery()->pluck('kpi_assignments.id')->all())
+        ->toContain($assignment->getKey());
+});
+
 // ─── Manager cannot view unrelated employee assignment ────────────────────────
 
 it('manager cannot view assignment of unrelated employee', function () {
@@ -194,6 +252,38 @@ it('employee can view their own assignment', function () {
 
     $policy = new KpiAssignmentPolicy;
     expect($policy->view($employee, $assignment))->toBeTrue();
+});
+
+it('supervisor can see assignments of direct employee staff only', function () {
+    $supervisor = makeUser(SystemRole::SUPERVISOR->value);
+    $otherSupervisor = makeUser(SystemRole::SUPERVISOR->value);
+    $employee = makeUser(SystemRole::EMPLOYEE->value);
+    $otherEmployee = makeUser(SystemRole::EMPLOYEE->value);
+    $employee->update(['supervisor_id' => $supervisor->getKey()]);
+    $otherEmployee->update(['supervisor_id' => $otherSupervisor->getKey()]);
+    $period = makeActivePeriod();
+    $template = makePublishedTemplate();
+    $hrd = makeUser(SystemRole::HRD->value);
+
+    $visibleAssignment = app(AssignKpiTemplateAction::class)->execute($period, $template, $employee, $hrd);
+    $hiddenAssignment = app(AssignKpiTemplateAction::class)->execute(
+        KpiPeriod::factory()->yearly()->create(['is_active' => true]),
+        makePublishedTemplate(),
+        $otherEmployee,
+        $hrd
+    );
+
+    test()->actingAs($supervisor);
+
+    $visibleIds = KpiAssignmentResource::getEloquentQuery()
+        ->pluck('kpi_assignments.id')
+        ->all();
+
+    expect(KpiAssignmentResource::canViewAny())->toBeTrue()
+        ->and(KpiAssignmentResource::canView($visibleAssignment))->toBeTrue()
+        ->and(KpiAssignmentResource::canView($hiddenAssignment))->toBeFalse()
+        ->and($visibleIds)->toContain($visibleAssignment->getKey())
+        ->and($visibleIds)->not->toContain($hiddenAssignment->getKey());
 });
 
 // ─── Employee cannot view another employee's assignment ───────────────────────

@@ -129,11 +129,15 @@ class KpiAssessment extends Model
             ]);
         }
 
-        if ($user->isManager()) {
-            return $query->whereHas(
-                'employee',
-                fn (Builder $builder) => $builder->where('supervisor_id', $user->getKey())
-            );
+        if ($user->canAssessDirectReports()) {
+            return $query->where(function (Builder $builder) use ($user): void {
+                $builder
+                    ->whereHas(
+                        'employee',
+                        fn (Builder $employeeBuilder) => $employeeBuilder->where('supervisor_id', $user->getKey())
+                    )
+                    ->orWhere('assessor_id', $user->getKey());
+            });
         }
 
         return $query->where('employee_id', $user->getKey());

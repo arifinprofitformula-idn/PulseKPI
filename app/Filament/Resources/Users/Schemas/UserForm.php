@@ -133,6 +133,10 @@ class UserForm
                                 Select::make('supervisor_id')
                                     ->label('Supervisor')
                                     ->options(fn (Get $get, ?User $record): array => User::query()
+                                        ->whereHas('roles', fn ($query) => $query->whereIn('name', [
+                                            SystemRole::MANAGER->value,
+                                            SystemRole::SUPERVISOR->value,
+                                        ]))
                                         ->when($record, fn ($query, $user) => $query->whereKeyNot($user->getKey()))
                                         ->orderBy('name')
                                         ->pluck('name', 'id')

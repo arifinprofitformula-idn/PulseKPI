@@ -45,8 +45,10 @@ class KpiAssessmentPolicy
             ], true);
         }
 
-        if ($user->isManager()) {
-            return $assessment->employee !== null && $user->manages($assessment->employee);
+        if ($user->canAssessDirectReports()) {
+            return $assessment->employee !== null
+                && $user->isDirectSupervisorOf($assessment->employee)
+                && ($assessment->assessor_id === null || $assessment->assessor_id === $user->getKey());
         }
 
         return $assessment->employee !== null && $user->is($assessment->employee);
@@ -63,7 +65,7 @@ class KpiAssessmentPolicy
 
     public function create(User $user): bool
     {
-        return $user->isManager() || $user->hasRole(SystemRole::SUPER_ADMIN->value);
+        return $user->canAssessDirectReports();
     }
 
     public function createForAssignment(User $user, KpiAssignment $assignment): bool
@@ -80,11 +82,16 @@ class KpiAssessmentPolicy
             return false;
         }
 
-        if ($user->isManager()) {
-            return $user->manages($assignment->employee);
+        if (! $assignment->employee->hasRole(SystemRole::EMPLOYEE->value)
+            && ! $assignment->employee->hasRole(SystemRole::SUPERVISOR->value)) {
+            return false;
         }
 
-        return true;
+        if ($user->hasRole(SystemRole::SUPER_ADMIN->value)) {
+            return true;
+        }
+
+        return $user->isDirectSupervisorOf($assignment->employee);
     }
 
     public function update(User $user, KpiAssessment $assessment): bool
@@ -97,10 +104,11 @@ class KpiAssessmentPolicy
             return true;
         }
 
-        if ($user->isManager()) {
+        if ($user->canAssessDirectReports()) {
             return $assessment->employee !== null
                 && ! $user->is($assessment->employee)
-                && $user->manages($assessment->employee);
+                && $user->isDirectSupervisorOf($assessment->employee)
+                && $assessment->assessor_id === $user->getKey();
         }
 
         return false;

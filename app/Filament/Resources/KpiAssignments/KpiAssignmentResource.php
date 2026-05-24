@@ -129,6 +129,38 @@ class KpiAssignmentResource extends Resource
             : (static::$navigationLabel ?? 'Assignment KPI');
     }
 
+    public static function canViewAny(): bool
+    {
+        $user = auth()->user();
+
+        return $user instanceof User
+            && (
+                $user->can(SystemPermission::ASSIGN_KPI->value)
+                || $user->canAssessDirectReports()
+                || $user->hasRole(SystemRole::EMPLOYEE->value)
+            );
+    }
+
+    public static function canView($record): bool
+    {
+        $user = auth()->user();
+
+        if (! $user instanceof User || ! $record instanceof KpiAssignment) {
+            return false;
+        }
+
+        if ($user->can(SystemPermission::ASSIGN_KPI->value)
+            || $user->hasRole(SystemRole::SUPER_ADMIN->value)) {
+            return true;
+        }
+
+        if ($user->canAssessDirectReports()) {
+            return $record->employee !== null && $user->isDirectSupervisorOf($record->employee);
+        }
+
+        return $record->employee !== null && $user->is($record->employee);
+    }
+
     public static function getEloquentQuery(): Builder
     {
         $query = parent::getEloquentQuery()
@@ -152,7 +184,7 @@ class KpiAssignmentResource extends Resource
             return $query;
         }
 
-        if ($user->isManager()) {
+        if ($user->canAssessDirectReports()) {
             return $query->whereHas(
                 'employee',
                 fn (Builder $q) => $q->where('supervisor_id', $user->getKey())

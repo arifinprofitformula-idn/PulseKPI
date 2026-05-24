@@ -17,6 +17,7 @@ it('seeds the expected roles and permissions', function () {
             SystemRole::SUPER_ADMIN->value,
             SystemRole::HRD->value,
             SystemRole::MANAGER->value,
+            SystemRole::SUPERVISOR->value,
             SystemRole::EMPLOYEE->value,
             SystemRole::APPROVER->value,
         );
@@ -37,4 +38,24 @@ it('seeds the expected roles and permissions', function () {
 
     expect(Role::findByName(SystemRole::SUPER_ADMIN->value)->permissions)
         ->toHaveCount(count(config('pulsekpi.permissions')));
+});
+
+it('seeds Supervisor with only admin panel and submit assessment permissions', function () {
+    $this->seed(RolePermissionSeeder::class);
+
+    $supervisor = Role::findByName(SystemRole::SUPERVISOR->value);
+    $permissions = $supervisor->permissions->pluck('name')->sort()->values()->all();
+
+    expect($permissions)->toBe([
+        SystemPermission::ACCESS_ADMIN_PANEL->value,
+        SystemPermission::SUBMIT_KPI_ASSESSMENT->value,
+    ])->and($permissions)->not->toContain(
+        SystemPermission::VIEW_REPORTS->value,
+        SystemPermission::APPROVE_KPI_ASSESSMENT->value,
+        SystemPermission::REVIEW_KPI_ASSESSMENT->value,
+        SystemPermission::MANAGE_USERS->value,
+        SystemPermission::MANAGE_ORGANIZATION->value,
+        SystemPermission::ASSIGN_KPI->value,
+        SystemPermission::EXPORT_REPORTS->value,
+    );
 });
