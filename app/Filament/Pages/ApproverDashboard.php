@@ -9,9 +9,10 @@ use App\Filament\Widgets\ApproverApprovalQueueWidget;
 use App\Filament\Widgets\ApproverOverviewStatsWidget;
 use App\Filament\Widgets\ApproverRecentDecisionsWidget;
 use App\Models\User;
+use App\Services\Dashboard\ApproverDashboardService;
+use Filament\Actions\Action;
 use Filament\Pages\Page;
 use Filament\Support\Icons\Heroicon;
-use Illuminate\Contracts\View\View;
 
 class ApproverDashboard extends Page
 {
@@ -45,23 +46,31 @@ class ApproverDashboard extends Page
 
     public function getTitle(): string
     {
-        return 'Approver Dashboard';
+        return 'KPI Command Center';
     }
 
     public function getHeading(): string
     {
-        return 'Approver Dashboard';
+        return 'KPI Command Center';
     }
 
-    public function getHeader(): ?View
+    public function getSubheading(): ?string
     {
-        /** @var User $user */
+        /** @var User|null $user */
         $user = auth()->user();
+        $period = app(ApproverDashboardService::class)->getActivePeriodLabel();
 
-        return view('filament.pages.approver-dashboard-header', [
-            'user' => $user,
-            'quickActions' => $this->getQuickActions(),
-        ]);
+        if (! $user instanceof User) {
+            return 'Pantau progres KPI, tindak lanjuti assessment, dan jaga performa tim tetap terukur.';
+        }
+
+        $periodLabel = $period ? "Periode aktif {$period}." : 'Belum ada periode aktif yang berjalan.';
+
+        return sprintf(
+            'Selamat datang, %s. Dashboard ini hanya menampilkan approval queue sesuai workflow Anda. %s Pantau progres KPI, tindak lanjuti assessment, dan jaga performa tim tetap terukur.',
+            $user->name,
+            $periodLabel,
+        );
     }
 
     protected function getHeaderWidgets(): array
@@ -93,26 +102,23 @@ class ApproverDashboard extends Page
     }
 
     /**
-     * @return list<array{label: string, url: string, style: string}>
+     * @return array<int, Action>
      */
-    protected function getQuickActions(): array
+    protected function getHeaderActions(): array
     {
         $actions = [];
 
         if (KpiAssessmentResource::canViewAny()) {
-            $actions[] = [
-                'label' => 'Open Approval Queue',
-                'url' => KpiAssessmentResource::getUrl('index'),
-                'style' => 'primary',
-            ];
+            $actions[] = Action::make('openApprovalQueue')
+                ->label('Open Approval Queue')
+                ->url(KpiAssessmentResource::getUrl('index'));
         }
 
         if (KpiAssessmentReportResource::canViewAny()) {
-            $actions[] = [
-                'label' => 'Open Approval History',
-                'url' => KpiAssessmentReportResource::getUrl('index'),
-                'style' => 'secondary',
-            ];
+            $actions[] = Action::make('openApprovalHistory')
+                ->label('Open Approval History')
+                ->url(KpiAssessmentReportResource::getUrl('index'))
+                ->color('success');
         }
 
         return $actions;

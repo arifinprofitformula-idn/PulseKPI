@@ -10,6 +10,7 @@ use App\Enums\SystemPermission;
 use App\Enums\SystemRole;
 use App\Models\KpiAssessment;
 use App\Models\KpiAssignment;
+use App\Models\KpiPeriod;
 use App\Models\KpiReportExport;
 use App\Models\KpiTemplate;
 use App\Models\User;
@@ -51,6 +52,7 @@ class HrdDashboardService
     public function __construct(
         private readonly BuildKpiAssignmentReportQuery $buildAssignmentQuery,
         private readonly BuildKpiAssessmentReportQuery $buildAssessmentQuery,
+        private readonly KpiDashboardService $dashboardService,
     ) {}
 
     public function canAccess(User $user): bool
@@ -88,6 +90,23 @@ class HrdDashboardService
                 ];
             }
         );
+    }
+
+    public function getActivePeriodLabel(): ?string
+    {
+        return KpiPeriod::query()
+            ->active()
+            ->orderByDesc('year')
+            ->orderByDesc('month')
+            ->value('name');
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function getCommandCenterMetrics(User $user): array
+    {
+        return $this->dashboardService->getStats($user);
     }
 
     /**

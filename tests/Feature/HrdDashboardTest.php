@@ -120,8 +120,21 @@ it('allows hrd to access the hrd dashboard', function () {
     actingAs($hrd);
 
     get('/admin/hrd-dashboard')
+        ->assertRedirect('/admin');
+});
+
+it('renders the merged admin root command center for hrd', function () {
+    $hrd = makeHrdDashboardUser(SystemRole::HRD->value);
+
+    actingAs($hrd);
+
+    get('/admin')
         ->assertOk()
-        ->assertSee('Dashboard HRD');
+        ->assertSee('KPI Command Center')
+        ->assertSee('Ringkasan operasional KPI')
+        ->assertSee('Action queue')
+        ->assertSee('Assignment KPI')
+        ->assertSee('Assessment KPI');
 });
 
 it('allows super admin to access the hrd dashboard', function () {
@@ -129,7 +142,7 @@ it('allows super admin to access the hrd dashboard', function () {
 
     actingAs($user);
 
-    get('/admin/hrd-dashboard')->assertOk();
+    get('/admin/hrd-dashboard')->assertRedirect('/admin');
 });
 
 it('forbids employees from accessing the hrd dashboard', function () {
@@ -154,7 +167,7 @@ it('allows managers with the existing report permission to access the hrd dashbo
 
     actingAs($user);
 
-    get('/admin/hrd-dashboard')->assertOk();
+    get('/admin/hrd-dashboard')->assertRedirect('/admin');
 });
 
 it('renders the dashboard without exposing private export paths', function () {
@@ -175,12 +188,12 @@ it('renders the dashboard without exposing private export paths', function () {
 
     actingAs($hrd);
 
-    get('/admin/hrd-dashboard')
+    get('/admin')
         ->assertOk()
         ->assertSee('Dian Karyawan')
         ->assertSee('assessment-2026.xlsx')
         ->assertDontSee('private/exports/assessment-2026.xlsx')
-        ->assertSee('Pending review')
+        ->assertSee('Action queue')
         ->assertSee('Export terbaru');
 });
 
@@ -202,7 +215,7 @@ it('limits pending review records on the dashboard', function () {
 
     actingAs($hrd);
 
-    get('/admin/hrd-dashboard')
+    get('/admin')
         ->assertOk()
         ->assertSee('Review Employee 1')
         ->assertSee('Review Employee 5')
@@ -214,9 +227,9 @@ it('renders human friendly empty states when no dashboard data exists', function
 
     actingAs($hrd);
 
-    get('/admin/hrd-dashboard')
+    get('/admin')
         ->assertOk()
-        ->assertSee('Belum ada assessment yang menunggu review.')
+        ->assertSee('Tidak ada assessment yang membutuhkan tindakan saat ini.')
         ->assertSee('Belum ada export terbaru.')
         ->assertSee('Belum ada aktivitas terbaru untuk ditampilkan.')
         ->assertSee('Data performa divisi belum tersedia untuk cakupan ini.');

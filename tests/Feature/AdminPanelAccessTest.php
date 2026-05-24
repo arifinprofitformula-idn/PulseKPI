@@ -30,7 +30,8 @@ it('allows a super admin to access the admin panel', function () {
 
     $this->actingAs($user)
         ->get('/admin')
-        ->assertOk();
+        ->assertOk()
+        ->assertSee('KPI Command Center');
 });
 
 it('allows a user with the panel permission to access the admin panel', function () {
@@ -63,4 +64,20 @@ it('forbids a user without the panel permission from accessing the admin panel',
     $this->actingAs($user)
         ->get('/admin')
         ->assertForbidden();
+});
+
+it('keeps manager and approver redirects from admin root intact', function () {
+    $manager = User::factory()->create();
+    $manager->assignRole(SystemRole::MANAGER->value);
+
+    $this->actingAs($manager)
+        ->get('/admin')
+        ->assertRedirect('/admin/manager-dashboard');
+
+    $approver = User::factory()->create();
+    $approver->assignRole(SystemRole::APPROVER->value);
+
+    $this->actingAs($approver)
+        ->get('/admin')
+        ->assertRedirect('/admin/approver-dashboard');
 });

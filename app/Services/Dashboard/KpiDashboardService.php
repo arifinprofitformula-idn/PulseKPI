@@ -5,8 +5,11 @@ namespace App\Services\Dashboard;
 use App\Actions\Reports\BuildKpiAssessmentReportQuery;
 use App\Actions\Reports\BuildKpiAssignmentReportQuery;
 use App\Enums\KpiAssessmentStatus;
+use App\Models\KpiAssessment;
+use App\Models\KpiPeriod;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 
 class KpiDashboardService
@@ -39,37 +42,111 @@ class KpiDashboardService
                 $assignmentQuery = $this->buildAssignmentQuery->execute($user, $filters);
                 $assessmentQuery = $this->buildReportQuery->execute($user, $filters);
 
-                $statusCounts = [
-                    KpiAssessmentStatus::DRAFT->value => $this->forCount($assessmentQuery)->where('status', KpiAssessmentStatus::DRAFT->value)->count(),
-                    KpiAssessmentStatus::SUBMITTED->value => $this->forCount($assessmentQuery)->where('status', KpiAssessmentStatus::SUBMITTED->value)->count(),
-                    KpiAssessmentStatus::REVIEWED->value => $this->forCount($assessmentQuery)->where('status', KpiAssessmentStatus::REVIEWED->value)->count(),
-                    KpiAssessmentStatus::APPROVED->value => $this->forCount($assessmentQuery)->where('status', KpiAssessmentStatus::APPROVED->value)->count(),
-                    KpiAssessmentStatus::LOCKED->value => $this->forCount($assessmentQuery)->where('status', KpiAssessmentStatus::LOCKED->value)->count(),
-                    KpiAssessmentStatus::REJECTED->value => $this->forCount($assessmentQuery)->where('status', KpiAssessmentStatus::REJECTED->value)->count(),
-                ];
+                $statusCounts = collect((clone $assessmentQuery)
+                    ->selectRaw('status, COUNT(*) as total')
+                    ->groupBy('status')
+                    ->pluck('total', 'status'))
+                    ->mapWithKeys(fn (mixed $total, mixed $status): array => [(string) $status => (int) $total]);
 
-                $gradeDistribution = [];
+                $gradeCounts = collect((clone $assessmentQuery)
+                    ->whereNotNull('grade')
+                    ->selectRaw('grade, COUNT(*) as total')
+                    ->groupBy('grade')
+                    ->pluck('total', 'grade'))
+                    ->mapWithKeys(fn (mixed $total, mixed $grade): array => [(string) $grade => (int) $total]);
 
-                foreach (self::GRADES as $grade) {
-                    $gradeDistribution[$grade] = $this->forCount($assessmentQuery)->where('grade', $grade)->count();
-                }
+                $gradeDistribution = collect(self::GRADES)
+                    ->mapWithKeys(fn (string $grade): array => [$grade => $gradeCounts->get($grade, 0)])
+                    ->all();
 
                 return [
                     'total_assignments' => (clone $assignmentQuery)->count(),
-                    'total_assessments' => array_sum($statusCounts),
-                    'draft_assessments' => $statusCounts[KpiAssessmentStatus::DRAFT->value],
-                    'submitted_assessments' => $statusCounts[KpiAssessmentStatus::SUBMITTED->value],
-                    'reviewed_assessments' => $statusCounts[KpiAssessmentStatus::REVIEWED->value],
-                    'approved_assessments' => $statusCounts[KpiAssessmentStatus::APPROVED->value],
-                    'locked_assessments' => $statusCounts[KpiAssessmentStatus::LOCKED->value],
-                    'rejected_assessments' => $statusCounts[KpiAssessmentStatus::REJECTED->value],
-                    'pending_hrd_review' => $statusCounts[KpiAssessmentStatus::SUBMITTED->value],
-                    'pending_approver_approval' => $statusCounts[KpiAssessmentStatus::REVIEWED->value],
+                    'total_assessments' => $statusCounts->sum(),
+                    'draft_assessments' => $statusCounts->get(KpiAssessmentStatus::DRAFT->value, 0),
+                    'submitted_assessments' => $statusCounts->get(KpiAssessmentStatus::SUBMITTED->value, 0),
+                    'reviewed_assessments' => $statusCounts->get(KpiAssessmentStatus::REVIEWED->value, 0),
+                    'approved_assessments' => $statusCounts->get(KpiAssessmentStatus::APPROVED->value, 0),
+                    'locked_assessments' => $statusCounts->get(KpiAssessmentStatus::LOCKED->value, 0),
+                    'rejected_assessments' => $statusCounts->get(KpiAssessmentStatus::REJECTED->value, 0),
+                    'pending_hrd_review' => $statusCounts->get(KpiAssessmentStatus::SUBMITTED->value, 0),
+                    'pending_approver_approval' => $statusCounts->get(KpiAssessmentStatus::REVIEWED->value, 0),
                     'average_final_score' => round((float) ((clone $assessmentQuery)->avg('final_score') ?? 0), 2),
                     'grade_distribution' => $gradeDistribution,
                 ];
             }
         );
+    }
+
+    public function getActivePeriodLabel(): ?string
+    {
+        return KpiPeriod::query()
+            ->active()
+            ->orderByDesc('year')
+            ->orderByDesc('month')
+            ->value('name');
+    }
+
+    /**
+     * @return Builder<KpiAssessment>
+     */
+    public function actionQueueQuery(User $user, int $limit = 5): Builder
+    {
+        return KpiAssessment::query()
+            ->visibleToUser($user)
+            ->with([
+                'employee',
+                'assignment.period',
+                'assignment.template',
+                'assessor',
+            ])
+            ->whereIn('status', [
+                KpiAssessmentStatus::SUBMITTED->value,
+                KpiAssessmentStatus::REVIEWED->value,
+            ])
+            ->orderByRaw('case when status = ? then 0 else 1 end', [
+                KpiAssessmentStatus::SUBMITTED->value,
+            ])
+            ->latest('updated_at')
+            ->limit($limit);
+    }
+
+    /**
+     * @return Builder<KpiAssessment>
+     */
+    public function recentAssessmentQuery(User $user, int $limit = 5): Builder
+    {
+        return KpiAssessment::query()
+            ->visibleToUser($user)
+            ->with([
+                'employee',
+                'assignment.period',
+                'assignment.template',
+                'assessor',
+            ])
+            ->latest('updated_at')
+            ->limit($limit);
+    }
+
+    /**
+     * @return Collection<int, array{label: string, count: int, percent: int}>
+     */
+    public function getStatusDistribution(User $user, array $filters = []): Collection
+    {
+        $stats = $this->getStats($user, $filters);
+        $total = max(1, (int) $stats['total_assessments']);
+
+        return collect([
+            ['label' => 'Draft', 'count' => (int) $stats['draft_assessments']],
+            ['label' => 'Submitted', 'count' => (int) $stats['submitted_assessments']],
+            ['label' => 'Reviewed', 'count' => (int) $stats['reviewed_assessments']],
+            ['label' => 'Approved', 'count' => (int) $stats['approved_assessments']],
+            ['label' => 'Locked', 'count' => (int) $stats['locked_assessments']],
+            ['label' => 'Rejected', 'count' => (int) $stats['rejected_assessments']],
+        ])->map(fn (array $row): array => [
+            'label' => $row['label'],
+            'count' => $row['count'],
+            'percent' => (int) round(($row['count'] / $total) * 100),
+        ]);
     }
 
     /**

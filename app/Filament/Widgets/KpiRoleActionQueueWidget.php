@@ -3,17 +3,19 @@
 namespace App\Filament\Widgets;
 
 use App\Enums\KpiAssessmentStatus;
-use App\Filament\Pages\HrdDashboard;
+use App\Enums\SystemPermission;
+use App\Enums\SystemRole;
 use App\Filament\Resources\KpiAssessments\KpiAssessmentResource;
 use App\Models\KpiAssessment;
 use App\Models\User;
-use App\Services\Dashboard\HrdDashboardService;
+use App\Services\Dashboard\KpiDashboardService;
+use App\Support\KpiStatusBadge;
 use Filament\Actions\Action;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget;
 
-class HrdPendingReviewWidget extends TableWidget
+class KpiRoleActionQueueWidget extends TableWidget
 {
     protected static bool $isDiscovered = false;
 
@@ -26,7 +28,12 @@ class HrdPendingReviewWidget extends TableWidget
 
     public static function canView(): bool
     {
-        return HrdDashboard::canAccess();
+        $user = auth()->user();
+
+        return $user instanceof User
+            && ($user->hasRole(SystemRole::SUPER_ADMIN->value)
+                || $user->hasRole(SystemRole::HRD->value)
+                || $user->can(SystemPermission::VIEW_REPORTS->value));
     }
 
     public function table(Table $table): Table
@@ -36,45 +43,40 @@ class HrdPendingReviewWidget extends TableWidget
 
         return $table
             ->heading('Action queue')
-            ->description('Assessment submitted terbaru yang perlu segera direview oleh HRD.')
+            ->description('Assessment submitted dan reviewed yang paling membutuhkan tindak lanjut saat ini.')
             ->query(
                 $user instanceof User
-                    ? app(HrdDashboardService::class)->pendingReviewQuery($user, 5)
+                    ? app(KpiDashboardService::class)->actionQueueQuery($user, 5)
                     : KpiAssessment::query()->whereKey([])
             )
             ->columns([
                 TextColumn::make('employee.name')
-                    ->label('Karyawan')
+                    ->label('Employee')
                     ->searchable(),
                 TextColumn::make('assignment.period.name')
-                    ->label('Periode')
+                    ->label('Period')
                     ->placeholder('-'),
                 TextColumn::make('assignment.template.name')
                     ->label('Template')
                     ->toggleable(),
-                TextColumn::make('assessor.name')
-                    ->label('Assessor')
-                    ->placeholder('-')
-                    ->toggleable(),
                 TextColumn::make('status')
                     ->label('Status')
                     ->badge()
-                    ->formatStateUsing(fn (mixed $state): string => $state instanceof KpiAssessmentStatus ? $state->label() : KpiAssessmentStatus::from((string) $state)->label())
-                    ->color('warning'),
-                TextColumn::make('submitted_at')
-                    ->label('Disubmit')
-                    ->since()
-                    ->placeholder('-'),
+                    ->formatStateUsing(fn (mixed $state): string => KpiStatusBadge::assessmentLabel($state))
+                    ->color(fn (mixed $state): string => KpiStatusBadge::assessmentColor($state)),
+                TextColumn::make('updated_at')
+                    ->label('Updated')
+                    ->since(),
             ])
             ->recordActions([
-                Action::make('review')
-                    ->label('Buka review')
+                Action::make('open')
+                    ->label(fn (KpiAssessment $record): string => $record->status === KpiAssessmentStatus::SUBMITTED ? 'Review now' : 'Open detail')
                     ->icon('heroicon-o-arrow-top-right-on-square')
                     ->url(fn (KpiAssessment $record): string => KpiAssessmentResource::getUrl('edit', ['record' => $record])),
             ])
             ->paginated(false)
             ->emptyStateHeading('Tidak ada assessment yang membutuhkan tindakan saat ini.')
-            ->emptyStateDescription('Semua pekerjaan sudah tertangani. Begitu manager mengirim assessment baru, antrian review akan tampil di sini.')
+            ->emptyStateDescription('Semua pekerjaan sudah tertangani.')
             ->emptyStateIcon('heroicon-o-inbox');
     }
 }

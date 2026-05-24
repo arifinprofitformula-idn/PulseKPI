@@ -11,9 +11,10 @@ use App\Filament\Widgets\ManagerOverviewStatsWidget;
 use App\Filament\Widgets\ManagerPerformanceChartWidget;
 use App\Filament\Widgets\ManagerTeamOverviewWidget;
 use App\Models\User;
+use App\Services\Dashboard\ManagerDashboardService;
+use Filament\Actions\Action;
 use Filament\Pages\Page;
 use Filament\Support\Icons\Heroicon;
-use Illuminate\Contracts\View\View;
 
 class ManagerDashboard extends Page
 {
@@ -47,23 +48,31 @@ class ManagerDashboard extends Page
 
     public function getTitle(): string
     {
-        return 'Manager Dashboard';
+        return 'KPI Command Center';
     }
 
     public function getHeading(): string
     {
-        return 'Manager Dashboard';
+        return 'KPI Command Center';
     }
 
-    public function getHeader(): ?View
+    public function getSubheading(): ?string
     {
-        /** @var User $user */
+        /** @var User|null $user */
         $user = auth()->user();
+        $period = app(ManagerDashboardService::class)->getActivePeriodLabel();
 
-        return view('filament.pages.manager-dashboard-header', [
-            'user' => $user,
-            'quickActions' => $this->getQuickActions(),
-        ]);
+        if (! $user instanceof User) {
+            return 'Pantau progres KPI, tindak lanjuti assessment, dan jaga performa tim tetap terukur.';
+        }
+
+        $periodLabel = $period ? "Periode aktif {$period}." : 'Belum ada periode aktif yang berjalan.';
+
+        return sprintf(
+            'Selamat datang, %s. Manager dashboard ini hanya menampilkan direct report Anda. %s Pantau progres KPI, tindak lanjuti assessment, dan jaga performa tim tetap terukur.',
+            $user->name,
+            $periodLabel,
+        );
     }
 
     protected function getHeaderWidgets(): array
@@ -96,34 +105,30 @@ class ManagerDashboard extends Page
     }
 
     /**
-     * @return list<array{label: string, url: string, style: string}>
+     * @return array<int, Action>
      */
-    protected function getQuickActions(): array
+    protected function getHeaderActions(): array
     {
         $actions = [];
 
         if (KpiAssignmentResource::canViewAny()) {
-            $actions[] = [
-                'label' => 'Open Team KPI',
-                'url' => KpiAssignmentResource::getUrl('index'),
-                'style' => 'secondary',
-            ];
+            $actions[] = Action::make('openTeamKpi')
+                ->label('Open Team KPI')
+                ->url(KpiAssignmentResource::getUrl('index'))
+                ->color('gray');
         }
 
         if (KpiAssessmentResource::canViewAny()) {
-            $actions[] = [
-                'label' => 'Open Assessment Queue',
-                'url' => KpiAssessmentResource::getUrl('index'),
-                'style' => 'primary',
-            ];
+            $actions[] = Action::make('openAssessmentQueue')
+                ->label('Open Assessment Queue')
+                ->url(KpiAssessmentResource::getUrl('index'));
         }
 
         if (KpiAssessmentReportResource::canViewAny()) {
-            $actions[] = [
-                'label' => 'Open Assessment History',
-                'url' => KpiAssessmentReportResource::getUrl('index'),
-                'style' => 'secondary',
-            ];
+            $actions[] = Action::make('openAssessmentHistory')
+                ->label('Open Assessment History')
+                ->url(KpiAssessmentReportResource::getUrl('index'))
+                ->color('success');
         }
 
         return $actions;

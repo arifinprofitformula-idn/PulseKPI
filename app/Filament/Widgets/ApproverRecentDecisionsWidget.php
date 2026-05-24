@@ -32,11 +32,11 @@ class ApproverRecentDecisionsWidget extends TableWidget
         $user = auth()->user();
 
         return $table
-            ->heading('Recent decisions')
-            ->description('Latest approve, reject, and lock actions. Rejected rows stay masked when the workflow no longer exposes record detail.')
+            ->heading('Recent activity')
+            ->description('Approve, reject, dan lock terbaru. Record yang tidak lagi boleh dibuka tetap dimasking sesuai workflow.')
             ->query(
                 $user instanceof User
-                    ? app(ApproverDashboardService::class)->recentDecisionQuery($user, 6)
+                    ? app(ApproverDashboardService::class)->recentDecisionQuery($user, 5)
                     : KpiApproval::query()->whereKey([])
             )
             ->columns([
@@ -80,8 +80,8 @@ class ApproverRecentDecisionsWidget extends TableWidget
                     ->url(fn (KpiApproval $record): string => KpiAssessmentResource::getUrl('edit', ['record' => $record->assessment])),
             ])
             ->paginated(false)
-            ->emptyStateHeading('No approved, rejected, or locked decisions yet.')
-            ->emptyStateDescription('Your recent approval activity will appear here as soon as you act on reviewed assessments.')
+            ->emptyStateHeading('Semua pekerjaan sudah tertangani.')
+            ->emptyStateDescription('Aktivitas approval terbaru akan muncul di sini setelah Anda mengambil keputusan pada assessment reviewed.')
             ->emptyStateIcon('heroicon-o-check-badge');
     }
 }

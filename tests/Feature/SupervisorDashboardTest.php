@@ -131,8 +131,8 @@ it('Supervisor can access Supervisor dashboard and admin root redirects there', 
     get('/admin')->assertRedirect('/admin/supervisor-dashboard');
     get('/admin/supervisor-dashboard')
         ->assertOk()
-        ->assertSee('Dashboard Supervisor')
-        ->assertSee('Selamat datang, Supervisor')
+        ->assertSee('KPI Command Center')
+        ->assertSee('Dashboard ini hanya menampilkan staff Employee langsung di bawah Anda')
         ->assertSee('Open Assessment Queue');
 });
 
@@ -170,8 +170,8 @@ it('Supervisor dashboard renders empty state and hides unrelated navigation', fu
 
     get('/admin/supervisor-dashboard')
         ->assertOk()
-        ->assertSee('No team members in your dashboard scope yet.')
-        ->assertSee('No assignments are waiting on you right now.')
+        ->assertSee('Belum ada data KPI untuk periode ini.')
+        ->assertSee('Tidak ada assessment yang membutuhkan tindakan saat ini.')
         ->assertSee('Team KPI')
         ->assertSee('Assessment Queue')
         ->assertDontSee('Dashboard HRD')

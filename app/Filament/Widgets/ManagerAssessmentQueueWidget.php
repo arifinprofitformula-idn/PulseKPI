@@ -33,11 +33,11 @@ class ManagerAssessmentQueueWidget extends TableWidget
         $user = auth()->user();
 
         return $table
-            ->heading('Assessment queue')
-            ->description('Draft and rejected items need manager work. Submitted items stay visible as status only.')
+            ->heading('Action queue')
+            ->description('Prioritas kerja Anda: draft, revisi rejected, dan item submitted yang masih perlu dipantau.')
             ->query(
                 $user instanceof User
-                    ? app(ManagerDashboardService::class)->assessmentQueueQuery($user, 6)
+                    ? app(ManagerDashboardService::class)->assessmentQueueQuery($user, 5)
                     : KpiAssessment::query()->whereKey([])
             )
             ->columns([
@@ -72,8 +72,8 @@ class ManagerAssessmentQueueWidget extends TableWidget
                     ->url(fn (KpiAssessment $record): string => KpiAssessmentResource::getUrl('edit', ['record' => $record])),
             ])
             ->paginated(false)
-            ->emptyStateHeading('No assignments are waiting on you right now.')
-            ->emptyStateDescription('Drafts, rejected revisions, and recently submitted items will appear here as the workflow moves.')
+            ->emptyStateHeading('Tidak ada assessment yang membutuhkan tindakan saat ini.')
+            ->emptyStateDescription('Semua pekerjaan sudah tertangani. Draft, revisi, dan submission baru akan muncul di sini saat workflow bergerak.')
             ->emptyStateIcon('heroicon-o-inbox');
     }
 }

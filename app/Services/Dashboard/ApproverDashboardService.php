@@ -6,6 +6,7 @@ use App\Enums\KpiApprovalAction;
 use App\Enums\KpiAssessmentStatus;
 use App\Models\KpiApproval;
 use App\Models\KpiAssessment;
+use App\Models\KpiPeriod;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Cache;
@@ -25,8 +26,15 @@ class ApproverDashboardService
             function () use ($user): array {
                 $assessmentQuery = $this->assessmentScope($user);
                 $decisionQuery = $this->decisionScope($user);
+                $gradeCounts = collect((clone $assessmentQuery)
+                    ->whereNotNull('grade')
+                    ->selectRaw('grade, COUNT(*) as total')
+                    ->groupBy('grade')
+                    ->pluck('total', 'grade'))
+                    ->mapWithKeys(fn (mixed $total, mixed $grade): array => [(string) $grade => (int) $total]);
 
                 return [
+                    'total_assessments' => (clone $assessmentQuery)->count(),
                     'pending_approval' => (clone $assessmentQuery)->where('status', KpiAssessmentStatus::REVIEWED->value)->count(),
                     'approved' => (clone $assessmentQuery)->where('status', KpiAssessmentStatus::APPROVED->value)->count(),
                     'rejected' => (clone $decisionQuery)->where('action', KpiApprovalAction::REJECTED->value)->count(),
@@ -43,6 +51,10 @@ class ApproverDashboardService
                         ])
                         ->whereBetween('acted_at', [now()->startOfMonth(), now()->endOfMonth()])
                         ->count(),
+                    'excellent_grade' => $gradeCounts->get('Excellent', 0),
+                    'good_grade' => $gradeCounts->get('Good', 0),
+                    'fair_grade' => $gradeCounts->get('Fair', 0),
+                    'needs_improvement_grade' => $gradeCounts->get('Needs Improvement', 0),
                 ];
             }
         );
@@ -84,6 +96,15 @@ class ApproverDashboardService
             ])
             ->latest('acted_at')
             ->limit($limit);
+    }
+
+    public function getActivePeriodLabel(): ?string
+    {
+        return KpiPeriod::query()
+            ->active()
+            ->orderByDesc('year')
+            ->orderByDesc('month')
+            ->value('name');
     }
 
     public function makeCacheKey(User $user, string $segment): string

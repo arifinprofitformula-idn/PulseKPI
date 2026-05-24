@@ -3,6 +3,8 @@
 namespace App\Filament\Widgets;
 
 use App\Filament\Pages\HrdDashboard;
+use App\Filament\Resources\KpiAssessments\KpiAssessmentResource;
+use App\Filament\Resources\KpiAssignments\KpiAssignmentResource;
 use App\Models\User;
 use App\Services\Dashboard\HrdDashboardService;
 use Filament\Widgets\StatsOverviewWidget;
@@ -18,7 +20,7 @@ class HrdOverviewStats extends StatsOverviewWidget
 
     protected ?string $heading = 'Ringkasan operasional KPI';
 
-    protected ?string $description = 'Pantau metrik utama HRD secara cepat tanpa meninggalkan panel utama.';
+    protected ?string $description = 'Ringkasan utama untuk assignment, workflow, performa akhir, dan distribusi grade dalam cakupan global.';
 
     public static function canView(): bool
     {
@@ -34,37 +36,91 @@ class HrdOverviewStats extends StatsOverviewWidget
             return [];
         }
 
-        $metrics = app(HrdDashboardService::class)->getSummaryMetrics($user);
+        $metrics = app(HrdDashboardService::class)->getCommandCenterMetrics($user);
+        $assignmentUrl = KpiAssignmentResource::canViewAny() ? KpiAssignmentResource::getUrl('index') : null;
+        $assessmentUrl = KpiAssessmentResource::canViewAny() ? KpiAssessmentResource::getUrl('index') : null;
 
         return [
-            Stat::make('Total karyawan', number_format($metrics['total_employees']))
-                ->description('Karyawan dalam cakupan dashboard')
-                ->descriptionIcon('heroicon-m-users')
-                ->color('primary'),
-            Stat::make('Template aktif', number_format($metrics['active_templates']))
-                ->description('Template siap dipakai')
-                ->descriptionIcon('heroicon-m-clipboard-document-list')
-                ->color('success'),
-            Stat::make('Assignment aktif', number_format($metrics['active_assignments']))
-                ->description('Siklus KPI yang sedang berjalan')
+            Stat::make('Total Assignments', number_format((int) $metrics['total_assignments']))
+                ->description('Semua assignment KPI dalam cakupan dashboard')
                 ->descriptionIcon('heroicon-m-clipboard-document-check')
-                ->color('info'),
-            Stat::make('Pending review', number_format($metrics['pending_review']))
-                ->description('Assessment menunggu review HRD')
-                ->descriptionIcon('heroicon-m-clock')
-                ->color('warning'),
-            Stat::make('Menunggu approval', number_format($metrics['waiting_approval']))
+                ->color('primary')
+                ->url($assignmentUrl)
+                ->extraAttributes(['class' => 'pk-cc-stat']),
+            Stat::make('Total Assessments', number_format((int) $metrics['total_assessments']))
+                ->description('Seluruh assessment yang tercatat')
+                ->descriptionIcon('heroicon-m-document-text')
+                ->color('info')
+                ->url($assessmentUrl)
+                ->extraAttributes(['class' => 'pk-cc-stat']),
+            Stat::make('Draft', number_format((int) $metrics['draft_assessments']))
+                ->description('Masih tersimpan sebagai draft')
+                ->descriptionIcon('heroicon-m-pencil-square')
+                ->color('gray')
+                ->url($assessmentUrl)
+                ->extraAttributes(['class' => 'pk-cc-stat']),
+            Stat::make('Submitted', number_format((int) $metrics['submitted_assessments']))
+                ->description('Menunggu review HRD')
+                ->descriptionIcon('heroicon-m-paper-airplane')
+                ->color('warning')
+                ->url($assessmentUrl)
+                ->extraAttributes(['class' => 'pk-cc-stat']),
+            Stat::make('Reviewed', number_format((int) $metrics['reviewed_assessments']))
                 ->description('Sudah direview dan menunggu approver')
-                ->descriptionIcon('heroicon-m-shield-check')
-                ->color('indigo'),
-            Stat::make('Approved', number_format($metrics['approved']))
-                ->description('Assessment yang sudah disetujui')
+                ->descriptionIcon('heroicon-m-eye')
+                ->color('indigo')
+                ->url($assessmentUrl)
+                ->extraAttributes(['class' => 'pk-cc-stat']),
+            Stat::make('Approved', number_format((int) $metrics['approved_assessments']))
+                ->description('Disetujui approver')
                 ->descriptionIcon('heroicon-m-check-circle')
-                ->color('success'),
-            Stat::make('Locked', number_format($metrics['locked']))
-                ->description('Assessment final dan terkunci')
+                ->color('success')
+                ->url($assessmentUrl)
+                ->extraAttributes(['class' => 'pk-cc-stat']),
+            Stat::make('Locked', number_format((int) $metrics['locked_assessments']))
+                ->description('Final dan tidak bisa diubah')
                 ->descriptionIcon('heroicon-m-lock-closed')
-                ->color('gray'),
+                ->color('slate')
+                ->url($assessmentUrl)
+                ->extraAttributes(['class' => 'pk-cc-stat']),
+            Stat::make('Rejected', number_format((int) $metrics['rejected_assessments']))
+                ->description('Perlu revisi sebelum lanjut')
+                ->descriptionIcon('heroicon-m-x-circle')
+                ->color('danger')
+                ->url($assessmentUrl)
+                ->extraAttributes(['class' => 'pk-cc-stat']),
+            Stat::make('Pending HRD Review', number_format((int) $metrics['pending_hrd_review']))
+                ->description('Antrian operasional yang perlu ditindak')
+                ->descriptionIcon('heroicon-m-clock')
+                ->color('warning')
+                ->url($assessmentUrl)
+                ->extraAttributes(['class' => 'pk-cc-stat']),
+            Stat::make('Avg Final Score', number_format((float) $metrics['average_final_score'], 2))
+                ->description('Rata-rata skor akhir')
+                ->descriptionIcon('heroicon-m-chart-bar-square')
+                ->color('primary')
+                ->url($assessmentUrl)
+                ->extraAttributes(['class' => 'pk-cc-stat']),
+            Stat::make('Excellent', number_format((int) $metrics['grade_distribution']['Excellent']))
+                ->description('Grade terbaik')
+                ->descriptionIcon('heroicon-m-trophy')
+                ->color('success')
+                ->extraAttributes(['class' => 'pk-cc-stat pk-cc-grade']),
+            Stat::make('Good', number_format((int) $metrics['grade_distribution']['Good']))
+                ->description('Performa solid')
+                ->descriptionIcon('heroicon-m-hand-thumb-up')
+                ->color('info')
+                ->extraAttributes(['class' => 'pk-cc-stat pk-cc-grade']),
+            Stat::make('Fair', number_format((int) $metrics['grade_distribution']['Fair']))
+                ->description('Masih bisa ditingkatkan')
+                ->descriptionIcon('heroicon-m-adjustments-horizontal')
+                ->color('warning')
+                ->extraAttributes(['class' => 'pk-cc-stat pk-cc-grade']),
+            Stat::make('Needs Improvement', number_format((int) $metrics['grade_distribution']['Needs Improvement']))
+                ->description('Perlu perhatian lebih')
+                ->descriptionIcon('heroicon-m-arrow-trending-down')
+                ->color('danger')
+                ->extraAttributes(['class' => 'pk-cc-stat pk-cc-grade']),
         ];
     }
 }

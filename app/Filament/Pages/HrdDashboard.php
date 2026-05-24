@@ -16,9 +16,10 @@ use App\Filament\Widgets\HrdPendingReviewWidget;
 use App\Filament\Widgets\HrdRecentActivityWidget;
 use App\Filament\Widgets\HrdWorkflowStatusWidget;
 use App\Models\User;
+use App\Services\Dashboard\HrdDashboardService;
+use Filament\Actions\Action;
 use Filament\Pages\Page;
 use Filament\Support\Icons\Heroicon;
-use Illuminate\Contracts\View\View;
 
 class HrdDashboard extends Page
 {
@@ -48,21 +49,40 @@ class HrdDashboard extends Page
 
     public static function shouldRegisterNavigation(): bool
     {
-        $user = auth()->user();
-
-        return $user instanceof User
-            && ($user->hasRole(SystemRole::SUPER_ADMIN->value) || $user->hasRole(SystemRole::HRD->value));
+        return false;
     }
 
-    public function getHeader(): ?View
+    public function mount(): void
     {
-        /** @var User $user */
-        $user = auth()->user();
+        abort_unless(static::canAccess(), 403);
 
-        return view('filament.pages.hrd-dashboard-header', [
-            'user' => $user,
-            'quickActions' => $this->getQuickActions(),
-        ]);
+        $this->redirect(KpiDashboard::getUrl(), navigate: true);
+    }
+
+    public function getHeading(): string
+    {
+        return 'KPI Command Center';
+    }
+
+    public function getSubheading(): ?string
+    {
+        /** @var User|null $user */
+        $user = auth()->user();
+        $period = app(HrdDashboardService::class)->getActivePeriodLabel();
+
+        if (! $user instanceof User) {
+            return 'Pantau progres KPI, tindak lanjuti assessment, dan jaga performa tim tetap terukur.';
+        }
+
+        $roleLabel = $user->hasRole(SystemRole::SUPER_ADMIN->value) ? 'Super Admin' : 'HRD';
+        $periodLabel = $period ? "Periode aktif {$period}." : 'Belum ada periode aktif yang berjalan.';
+
+        return sprintf(
+            'Selamat datang, %s (%s). %s Pantau progres KPI, tindak lanjuti assessment, dan jaga performa tim tetap terukur.',
+            $user->name,
+            $roleLabel,
+            $periodLabel,
+        );
     }
 
     protected function getHeaderWidgets(): array
@@ -99,34 +119,30 @@ class HrdDashboard extends Page
     }
 
     /**
-     * @return list<array{label: string, url: string, style: string}>
+     * @return array<int, Action>
      */
-    protected function getQuickActions(): array
+    protected function getHeaderActions(): array
     {
         $actions = [];
 
         if (KpiTemplateResource::canCreate()) {
-            $actions[] = [
-                'label' => 'Buat Template KPI',
-                'url' => KpiTemplateResource::getUrl('create'),
-                'style' => 'primary',
-            ];
+            $actions[] = Action::make('createTemplate')
+                ->label('Buat Template KPI')
+                ->url(KpiTemplateResource::getUrl('create'))
+                ->color('success');
         }
 
         if (KpiAssignmentResource::canCreate()) {
-            $actions[] = [
-                'label' => 'Assign KPI',
-                'url' => KpiAssignmentResource::getUrl('create'),
-                'style' => 'secondary',
-            ];
+            $actions[] = Action::make('createAssignment')
+                ->label('Assign KPI')
+                ->url(KpiAssignmentResource::getUrl('create'))
+                ->color('gray');
         }
 
         if (KpiAssessmentResource::canViewAny()) {
-            $actions[] = [
-                'label' => 'Review Assessment',
-                'url' => KpiAssessmentResource::getUrl('index'),
-                'style' => 'secondary',
-            ];
+            $actions[] = Action::make('openReviewQueue')
+                ->label('Review Assessment')
+                ->url(KpiAssessmentResource::getUrl('index'));
         }
 
         return $actions;

@@ -49,17 +49,31 @@ class SupervisorDashboard extends Page
 
     public function getTitle(): string
     {
-        return 'Dashboard Supervisor';
+        return 'KPI Command Center';
     }
 
     public function getHeading(): string
     {
-        return 'Dashboard Supervisor';
+        return 'KPI Command Center';
     }
 
     public function getSubheading(): ?string
     {
-        return 'Selamat datang, Supervisor. Pantau KPI staff Anda dan selesaikan assessment yang membutuhkan tindakan.';
+        /** @var User|null $user */
+        $user = auth()->user();
+        $period = app(SupervisorDashboardService::class)->getActivePeriodLabel();
+
+        if (! $user instanceof User) {
+            return 'Pantau progres KPI, tindak lanjuti assessment, dan jaga performa tim tetap terukur.';
+        }
+
+        $periodLabel = $period ? "Periode aktif {$period}." : 'Belum ada periode aktif yang berjalan.';
+
+        return sprintf(
+            'Selamat datang, %s. Dashboard ini hanya menampilkan staff Employee langsung di bawah Anda. %s Pantau progres KPI, tindak lanjuti assessment, dan jaga performa tim tetap terukur.',
+            $user->name,
+            $periodLabel,
+        );
     }
 
     public function content(Schema $schema): Schema
@@ -89,8 +103,8 @@ class SupervisorDashboard extends Page
                 ->description('Daftar assessment staff langsung yang masih membutuhkan perhatian Anda.')
                 ->schema([
                     empty($data['pendingQueue'])
-                        ? EmptyState::make('No assignments are waiting on you right now.')
-                            ->description('Draft, rejected, dan assessment terbaru akan muncul di sini saat workflow berjalan.')
+                        ? EmptyState::make('Tidak ada assessment yang membutuhkan tindakan saat ini.')
+                            ->description('Semua pekerjaan sudah tertangani. Draft, revisi, dan assessment terbaru akan muncul di sini saat workflow berjalan.')
                             ->icon('heroicon-o-inbox')
                         : Html::make($this->renderTable(
                             ['Employee', 'Period', 'Template', 'Status'],
@@ -106,8 +120,8 @@ class SupervisorDashboard extends Page
                 ->description('Ringkasan assessment terbaru untuk staff langsung Anda.')
                 ->schema([
                     empty($data['recentAssessments'])
-                        ? EmptyState::make('No team members in your dashboard scope yet.')
-                            ->description('Once employees report to you and receive KPI assignments, their latest status will appear here.')
+                        ? EmptyState::make('Belum ada data KPI untuk periode ini.')
+                            ->description('Saat staff Employee langsung Anda sudah menerima assignment KPI, ringkasan terbarunya akan muncul di sini.')
                             ->icon('heroicon-o-user-group')
                         : Html::make($this->renderTable(
                             ['Employee', 'Period', 'Status', 'Score', 'Updated'],

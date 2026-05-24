@@ -2,10 +2,12 @@
 
 namespace App\Services\Dashboard;
 
+use App\Enums\SystemRole;
 use App\Models\KpiAssessment;
 use App\Models\KpiAssignment;
 use App\Models\User;
 use App\Support\KpiStatusBadge;
+use Illuminate\Database\Eloquent\Builder;
 
 class SupervisorDashboardService extends ManagerDashboardService
 {
@@ -53,11 +55,11 @@ class SupervisorDashboardService extends ManagerDashboardService
                     'description' => 'Rata-rata final score staff yang sudah dinilai.',
                 ],
             ],
-            'pendingQueue' => $this->assessmentQueueQuery($user, 6)
+            'pendingQueue' => $this->assessmentQueueQuery($user, 5)
                 ->get()
                 ->map(fn (KpiAssessment $assessment): array => $this->mapPendingQueueItem($assessment))
                 ->all(),
-            'recentAssessments' => $this->teamOverviewQuery($user, 6)
+            'recentAssessments' => $this->teamOverviewQuery($user, 5)
                 ->get()
                 ->filter(fn (KpiAssignment $assignment): bool => $assignment->assessment !== null)
                 ->map(fn (KpiAssignment $assignment): array => $this->mapRecentAssessmentItem($assignment))
@@ -69,6 +71,23 @@ class SupervisorDashboardService extends ManagerDashboardService
     public function makeCacheKey(User $user, string $segment): string
     {
         return sprintf('supervisor-dashboard:%s:%s', $user->getKey(), $segment);
+    }
+
+    /**
+     * @return Builder<User>
+     */
+    protected function directReportQuery(User $user): Builder
+    {
+        return User::query()
+            ->role(SystemRole::EMPLOYEE->value)
+            ->where('supervisor_id', $user->getKey());
+    }
+
+    protected function applyDirectReportScope(Builder $builder, User $user): void
+    {
+        $builder
+            ->where('supervisor_id', $user->getKey())
+            ->whereHas('roles', fn (Builder $roleBuilder): Builder => $roleBuilder->where('name', SystemRole::EMPLOYEE->value));
     }
 
     /**

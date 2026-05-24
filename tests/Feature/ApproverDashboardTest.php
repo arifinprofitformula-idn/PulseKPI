@@ -89,7 +89,8 @@ it('Approver dashboard is accessible and admin root redirects there', function (
     get('/admin')->assertRedirect('/admin/approver-dashboard');
     get('/admin/approver-dashboard')
         ->assertOk()
-        ->assertSee('PulseKPI Approver Workspace')
+        ->assertSee('KPI Command Center')
+        ->assertSee('Dashboard ini hanya menampilkan approval queue sesuai workflow Anda')
         ->assertSee('Open Approval Queue');
 });
 
@@ -152,8 +153,8 @@ it('Approver dashboard renders empty states and hides unrelated navigation', fun
 
     get('/admin/approver-dashboard')
         ->assertOk()
-        ->assertSee('No pending approval right now.')
-        ->assertSee('No approved, rejected, or locked decisions yet.')
+        ->assertSee('Tidak ada assessment yang membutuhkan tindakan saat ini.')
+        ->assertSee('Semua pekerjaan sudah tertangani.')
         ->assertSee('Approval Queue')
         ->assertSee('Approval History')
         ->assertDontSee('Dashboard HRD')

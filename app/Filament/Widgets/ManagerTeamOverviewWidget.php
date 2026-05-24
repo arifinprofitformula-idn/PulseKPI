@@ -33,11 +33,11 @@ class ManagerTeamOverviewWidget extends TableWidget
         $user = auth()->user();
 
         return $table
-            ->heading('Team KPI overview')
-            ->description('Latest KPI cycle per direct subordinate, including score and next action context.')
+            ->heading('Recent team assessments')
+            ->description('Update terbaru dari direct report Anda, lengkap dengan status, score, dan grade yang aman ditampilkan.')
             ->query(
                 $user instanceof User
-                    ? app(ManagerDashboardService::class)->teamOverviewQuery($user, 6)
+                    ? app(ManagerDashboardService::class)->teamOverviewQuery($user, 5)
                     : KpiAssignment::query()->whereKey([])
             )
             ->columns([
@@ -79,8 +79,8 @@ class ManagerTeamOverviewWidget extends TableWidget
                     }),
             ])
             ->paginated(false)
-            ->emptyStateHeading('No team members in your dashboard scope yet.')
-            ->emptyStateDescription('Once employees report to you and receive KPI assignments, their latest status will appear here.')
+            ->emptyStateHeading('Belum ada data KPI untuk periode ini.')
+            ->emptyStateDescription('Saat direct report Anda sudah menerima assignment KPI, ringkasan terbarunya akan muncul di sini.')
             ->emptyStateIcon('heroicon-o-user-group');
     }
 }

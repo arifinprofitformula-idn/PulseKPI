@@ -131,7 +131,8 @@ it('Manager dashboard is accessible and admin root redirects there', function ()
     get('/admin')->assertRedirect('/admin/manager-dashboard');
     get('/admin/manager-dashboard')
         ->assertOk()
-        ->assertSee('PulseKPI Manager Workspace')
+        ->assertSee('KPI Command Center')
+        ->assertSee('Manager dashboard ini hanya menampilkan direct report Anda')
         ->assertSee('Open Assessment Queue');
 });
 
@@ -180,8 +181,8 @@ it('Manager dashboard renders human friendly empty states and hides unrelated na
 
     get('/admin/manager-dashboard')
         ->assertOk()
-        ->assertSee('No team members in your dashboard scope yet.')
-        ->assertSee('No assignments are waiting on you right now.')
+        ->assertSee('Belum ada data KPI untuk periode ini.')
+        ->assertSee('Tidak ada assessment yang membutuhkan tindakan saat ini.')
         ->assertSee('Team KPI')
         ->assertSee('Assessment Queue')
         ->assertSee('Assessment History')
